@@ -2,6 +2,7 @@
 .settings/
 .project
 /build
+bin/
 
 *.class
 
