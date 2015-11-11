@@ -1,21 +1,123 @@
 package uk.ac.aber.clg11.tsp;
 
+import java.util.ArrayList;
 import uk.ac.aber.clg11.tsp.ga.GAChromosome;
 
-public class TSPRoute extends GAChromosome<Integer, TSPLocation> {
+public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	
-	private int distance = 0;
+	private int routeDistance = 0;
 	
 	public TSPRoute() {
 		super();
-		//this.sequence = new java.util.LinkedList<>();
-		//this.sequence = new ArrayList<String>();
+	}
+	
+	public TSPRoute(ArrayList<TSPLocation> locations) {
+		this.genes = locations;
+	}
+	
+	public TSPRoute(ArrayList<TSPLocation> locations, boolean shouldRandomise) {
+		
+		super(locations);
+		
+		if (shouldRandomise) {
+			super.shuffleGenes();
+		}
+		
+	}
+	
+	public ArrayList<TSPLocation> getRouteLocations() {
+		return (ArrayList<TSPLocation>) super.getGenes();
+	}
+	
+	
+	public TSPLocation getLocationAtPosition(int positionIndex) {
+		return this.getRouteLocations().get(positionIndex);
+	}
+	
+	public void setLocationAtPosition(int positionIndex, TSPLocation newLocation) {
+		
+		this.getRouteLocations().set(positionIndex, newLocation);
+		
+		// We need to reset the distance and fitness of the current route if we change any of the route locations.
+		this.routeDistance = 0;
+		super.currentFitness = 0;
+		
+	}
+
+	public int getRouteDistance() {
+		
+		if (this.routeDistance <= 0) {
+			
+			this.routeDistance = calcRouteDistance();
+		}
+		
+		return this.routeDistance;
+	}
+	
+	private int calcRouteDistance() {
+		
+		int totalRouteDistance = 0;
+		int routeSize = this.getRouteSize();
+		ArrayList<TSPLocation> routeLocations = this.getRouteLocations();
+	
+		for (int i = 0; i < this.getRouteSize(); i++) {
+			
+			TSPLocation currentLocation = routeLocations.get(i);
+			
+			int currentIndex = i;
+			
+			//System.out.println("Current Index: " + i);
+			
+			// We use the 'modulo' operator to make sure we always return to the first location when we process the last location.
+			int nextIndex = ++currentIndex % routeSize;
+			
+			//System.out.println("Next Index: " + nextIndex);
+			
+			TSPLocation nextLocation = routeLocations.get(nextIndex);
+			
+			//Calculate distance between the two cities.
+			totalRouteDistance += calcStraightLineDistance(currentLocation, nextLocation);
+		}
+		
+		return totalRouteDistance;
+		
+	}
+	
+	// Based on 2D straight-line distance equation taken. 
+	// See: http://www.calculatorsoup.com/calculators/geometry-plane/distance-two-points.php for more information.
+	private double calcStraightLineDistance(TSPLocation startLocation, TSPLocation endLocation) {
+		
+		int xDistance = Math.abs(startLocation.getxCoord() - endLocation.getxCoord());
+        int yDistance = Math.abs(startLocation.getyCoord() - endLocation.getxCoord());
+        
+        double distance = Math.sqrt( (xDistance*xDistance) + (yDistance*yDistance) );
+        
+        return distance;
+		
 	}
 	
 	@Override
-	public Integer calcFitness() {
-		return 1;
+	public void resetFitness() {
+		this.currentFitness = 0;
+		this.routeDistance = 0;
+	}
+	
+	@Override
+	public Double calcFitness() {
+		
+		if (this.currentFitness <= 0) {
+			this.currentFitness = 1 / (double) this.getRouteDistance();
+		}
+		
+		return this.currentFitness;
 	}
 
-
+	public int getRouteSize() {
+		return super.getSize();
+	}
+	
+	//TODO: Need to make this better.
+	public boolean containsLocation(TSPLocation searchLocation) {
+		return this.genes.contains(searchLocation);
+	}
 }

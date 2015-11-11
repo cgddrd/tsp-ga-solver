@@ -25,17 +25,4 @@ public class TSPLocation extends GAGene {
 		return "TSPLocation [xCoord = " + xCoord + ", yCoord = " + yCoord + "]";
 	}
 	
-	// Based on 2D straight-line distance equation taken. 
-	// See: http://www.calculatorsoup.com/calculators/geometry-plane/distance-two-points.php for more information.
-    public double distanceTo(TSPLocation otherLocation) {
-    	
-        int xDistance = Math.abs(getxCoord() - otherLocation.getxCoord());
-        int yDistance = Math.abs(getyCoord() - otherLocation.getxCoord());
-        
-        double distance = Math.sqrt( (xDistance*xDistance) + (yDistance*yDistance) );
-        
-        return distance;
-        
-    }
-	
 }
