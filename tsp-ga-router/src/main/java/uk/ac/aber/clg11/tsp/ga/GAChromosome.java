@@ -4,27 +4,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class GAChromosome<T extends Number, K extends GAGene> implements IGAChromosome<T> {	
 	
-	private ArrayList<K> genes;
+	protected ArrayList<K> genes;
 	protected double currentFitness = 0;
+	protected String testString;
 	
-	protected GAChromosome() {
+	public GAChromosome() {
 		this.genes = new ArrayList<K>();
 	}
 	
-	protected GAChromosome(ArrayList<K> genes) {
+	public GAChromosome(ArrayList<K> genes) {
 		this.setGenes(genes, false);
 	}
 	
-	protected GAChromosome(ArrayList<K> genes, boolean shouldRandomise) {
+	public GAChromosome(ArrayList<K> genes, boolean shouldRandomise) {
 		this.setGenes(genes, shouldRandomise);
 	}
 	
 	private void shuffleGenes() {
 		
-		// Create new seed then randomise collection - http://stackoverflow.com/a/4229001
+		// Create new seed then shuffle collection - http://stackoverflow.com/a/4229001
 		long seed = System.nanoTime();
 		Collections.shuffle(this.genes, new Random(seed));
 		
@@ -32,7 +34,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 	
 	public void setGenes(ArrayList<K> genes, boolean shouldRandomise) {
 		
-		this.genes = genes;
+		this.genes = new ArrayList<K>(genes);
 		
 		if (shouldRandomise) {
 			this.shuffleGenes();

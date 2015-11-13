@@ -1,6 +1,8 @@
 package uk.ac.aber.clg11.tsp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
 import uk.ac.aber.clg11.tsp.ga.GAChromosome;
 
 public class TSPRoute extends GAChromosome<Double, TSPLocation> {
@@ -15,15 +17,24 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	}
 	
 	public TSPRoute(ArrayList<TSPLocation> locations) {
-		super.setGenes(locations, false);
+		super(locations, false);
 	}
 	
 	public TSPRoute(ArrayList<TSPLocation> locations, boolean shouldRandomise) {
 		super(locations, shouldRandomise);
+//		currentFitness = 0;
+//		genes = new ArrayList<TSPLocation>();
+//		testString = "Blah";
+//		
+//		genes = new ArrayList<>(locations);
+//		
+//		Collections.shuffle(genes);
+//		
+//		System.out.println(genes);
 	}
 	
 	public ArrayList<TSPLocation> getRouteLocations() {
-		return (ArrayList<TSPLocation>) super.getGenes();
+		return this.getGenes();
 	}
 	
 	
@@ -63,12 +74,8 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 			
 			int currentIndex = i;
 			
-			//System.out.println("Current Index: " + i);
-			
 			// We use the 'modulo' operator to make sure we always return to the first location when we process the last location.
 			int nextIndex = ++currentIndex % routeSize;
-			
-			//System.out.println("Next Index: " + nextIndex);
 			
 			TSPLocation nextLocation = routeLocations.get(nextIndex);
 			
@@ -103,7 +110,7 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	public Double getFitness() {
 		
 		if (this.currentFitness <= 0) {
-			this.currentFitness = 1 / (double) this.getRouteDistance();
+			this.currentFitness = (1 / (double) this.getRouteDistance());
 		}
 		
 		return this.currentFitness;

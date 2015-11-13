@@ -44,7 +44,7 @@ public abstract class GAAlgorithm {
 
 	}
 		
-	public ArrayList<GAGene> performOrderOneCrossover(GAChromosome<Number, GAGene> parent1, GAChromosome<Number, GAGene> parent2) throws Exception {
+	public ArrayList<GAGene> performOrderOneCrossover(GAChromosome parent1, GAChromosome parent2) throws Exception {
 		
 		Random random = new Random();
 		
@@ -76,7 +76,7 @@ public abstract class GAAlgorithm {
 				
 				int currentIndex = (crossoverSelectionEndIndex + i) % parent2.getSize();
 				
-				GAGene currentGene = parent2.getGenes().get(currentIndex);
+				GAGene currentGene = (GAGene) parent2.getGenes().get(currentIndex);
 				
 				if (!childChromosome.contains(currentGene)) {
 					
