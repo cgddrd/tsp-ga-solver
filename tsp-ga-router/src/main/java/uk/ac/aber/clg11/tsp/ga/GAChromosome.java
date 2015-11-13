@@ -5,25 +5,24 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public abstract class GAChromosome<T extends Number, K> implements IGAChromosome<T> {	
+public abstract class GAChromosome<T extends Number, K extends GAGene> implements IGAChromosome<T> {	
 	
-	protected List<K> genes;
-	
+	private ArrayList<K> genes;
 	protected double currentFitness = 0;
 	
-	public GAChromosome() {
-		genes = new ArrayList<K>();
+	protected GAChromosome() {
+		this.genes = new ArrayList<K>();
 	}
 	
-	public GAChromosome(List<K> genes) {
-		this.genes = genes;
+	protected GAChromosome(ArrayList<K> genes) {
+		this.setGenes(genes, false);
 	}
 	
-	public int getSize() {
-		return genes.size();
+	protected GAChromosome(ArrayList<K> genes, boolean shouldRandomise) {
+		this.setGenes(genes, shouldRandomise);
 	}
 	
-	protected void shuffleGenes() {
+	private void shuffleGenes() {
 		
 		// Create new seed then randomise collection - http://stackoverflow.com/a/4229001
 		long seed = System.nanoTime();
@@ -31,11 +30,26 @@ public abstract class GAChromosome<T extends Number, K> implements IGAChromosome
 		
 	}
 	
-	public List<K> getGenes() {
+	public void setGenes(ArrayList<K> genes, boolean shouldRandomise) {
+		
+		this.genes = genes;
+		
+		if (shouldRandomise) {
+			this.shuffleGenes();
+		}
+	}
+	
+	protected ArrayList<K> getGenes() {
 		return this.genes;
+	}
+	
+	public int getSize() {
+		return genes.size();
 	}
 	
 	protected void resetFitness() {
 		this.currentFitness = 0;
 	}
+	
+	public abstract T getFitness();
 }

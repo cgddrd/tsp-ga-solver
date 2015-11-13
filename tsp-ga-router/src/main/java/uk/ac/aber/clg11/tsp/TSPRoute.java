@@ -5,24 +5,21 @@ import uk.ac.aber.clg11.tsp.ga.GAChromosome;
 
 public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	
-	private int routeDistance = 0;
+	// TSPRoute provides PERMUTATION ENCODING of TSP (which is an ORDERING PROBLEM).
+	// See: https://youtu.be/jnnN38tBpTo for more information.
 	
+	private int routeDistance = 0;
+
 	public TSPRoute() {
 		super();
 	}
 	
 	public TSPRoute(ArrayList<TSPLocation> locations) {
-		this.genes = locations;
+		super.setGenes(locations, false);
 	}
 	
 	public TSPRoute(ArrayList<TSPLocation> locations, boolean shouldRandomise) {
-		
-		super(locations);
-		
-		if (shouldRandomise) {
-			super.shuffleGenes();
-		}
-		
+		super(locations, shouldRandomise);
 	}
 	
 	public ArrayList<TSPLocation> getRouteLocations() {
@@ -103,7 +100,7 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	}
 	
 	@Override
-	public Double calcFitness() {
+	public Double getFitness() {
 		
 		if (this.currentFitness <= 0) {
 			this.currentFitness = 1 / (double) this.getRouteDistance();
@@ -118,6 +115,7 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	
 	//TODO: Need to make this better.
 	public boolean containsLocation(TSPLocation searchLocation) {
-		return this.genes.contains(searchLocation);
+		return this.getGenes().contains(searchLocation);
 	}
+
 }
