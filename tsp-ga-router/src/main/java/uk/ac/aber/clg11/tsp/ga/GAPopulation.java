@@ -38,7 +38,11 @@ public abstract class GAPopulation<T extends Number, K extends GAGene, S extends
 		this.chromosomeCandidates.add(newChromosome);
 	}
 	
-	public int getPopulatationSize() {
+	protected void addChromosomes(ArrayList<S> newChromosomes) {
+		this.chromosomeCandidates.addAll(newChromosomes);
+	}
+	
+	public int getPopulationSize() {
 		return this.chromosomeCandidates.size();
 	}
 

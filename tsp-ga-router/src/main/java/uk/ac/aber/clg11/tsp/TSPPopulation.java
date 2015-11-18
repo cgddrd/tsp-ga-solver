@@ -36,6 +36,10 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	public void addRoute(TSPRoute newRoute) {
 		this.addChromosome(newRoute);
 	}
+	
+	public void addRoutes(ArrayList<TSPRoute> newRoutes) {
+		this.addChromosomes(newRoutes);
+	}
 
 	@Override
 	public GAChromosome<Double, TSPLocation> getFittestCandidate() {
