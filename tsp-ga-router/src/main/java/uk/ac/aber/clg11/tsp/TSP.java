@@ -1,6 +1,8 @@
 package uk.ac.aber.clg11.tsp;
 
 import java.util.ArrayList;
+
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +10,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import uk.ac.aber.clg11.tsp.ga.GAGene;
+
+//import org.apache.log4j.Logger;
 
 public class TSP {
 	

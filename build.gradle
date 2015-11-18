@@ -1,6 +1,7 @@
 allprojects {
     apply plugin: 'java'
     apply plugin: 'application'
+    apply plugin: 'eclipse'
     
     dependencies {
         testCompile 'junit:junit:4.11'
@@ -8,5 +9,6 @@ allprojects {
 
     repositories {
         mavenCentral()
+        maven { url "http://mvn.erichseifert.de/maven2" }
     }
 }
