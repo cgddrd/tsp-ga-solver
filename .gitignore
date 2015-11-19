@@ -4,7 +4,12 @@
 build/
 bin/
 *.class
+
+# Potential output file formats from TSP applications.
 *.csv
+*.jpg
+*.png
+*.svg
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

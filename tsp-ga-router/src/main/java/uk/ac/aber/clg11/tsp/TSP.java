@@ -7,8 +7,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
 
+import uk.ac.aber.clg11.tsp.TSPPlotter.TSPPlotterBuilder;
 import uk.ac.aber.clg11.tsp.ga.GAGene;
 
 //import org.apache.log4j.Logger;
@@ -118,14 +121,14 @@ public class TSP {
         
         System.out.println("Solution:");
         System.out.println(((TSPRoute) pop2.getFittestCandidate()).getRouteLocations());
+
+       // TSPGraph frame = new TSPGraph(200, 200, false, false);
         
+        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
         
-        TSPGraph frame = new TSPGraph();
-        
-        frame.updateData();
-        frame.redrawPlot();
-        //frame.updatePlot();
-        
+        //frame.updateData();
+       // frame.redrawPlot();
+       
         TSPPopulation pop3 = new TSPPopulation(50, true, cities);
         TSPAlgorithm ga3 = new TSPAlgorithm(0.015, 0.95, 5, true);
         
@@ -144,78 +147,16 @@ public class TSP {
         
         frame.updateData();
         frame.redrawPlot();
+        
+        Timer timer = new Timer();
+        
+	    timer.scheduleAtFixedRate(new TimerTask() {
+	  	  @Override
+	  	  public void run() {
+	  	   frame.updatePlot();
+	  	  }
+	  	}, 1*1000, 1*1000);
 
     }
-	
-	public static <K> ArrayList<K> crossOver1 (ArrayList<K> parent1, ArrayList<K> parent2) {
-		
-		int startIndex = 3;
-        int endIndex = 7;
-        
-		ArrayList<K> child = new ArrayList<K>();
-		
-		List<K> parent1SubCollection = parent1.subList(startIndex, endIndex);
-		
-		child.addAll(parent1SubCollection);
-		
-		for (int i = 0; i < parent2.size(); i++) {
-			
-			// We want to start moving from the next element on from the end index of the inserted selection from parent 1.
-			int currentIndex = (endIndex + i) % parent2.size();
-			
-			if(!child.contains(parent2.get(currentIndex))) {
-				child.add(parent2.get(currentIndex));
-			}
-			
-		}
-		
-		Collections.rotate(child, startIndex);
-		
-		return child;
-		
-	}
-	
-	public static <K> ArrayList<K> crossOver2 (ArrayList<K> parent1, ArrayList<K> parent2) {
-		
-		int startIndex = 3;
-        int endIndex = 7;
-        
-        //Create empty Child chromosome set to the same size as the parent.
-        ArrayList<K> child = new ArrayList<K>(Collections.nCopies(parent1.size(), null));
-		
-		// Copy the sub collection extracted from Parent 1 over to the Child.
-		for (int i = startIndex; i != endIndex; i++) {
-			child.set(i, parent1.get(i));
-		}
-		
-		List<K> parent1SubCollection = parent1.subList(startIndex, endIndex);
-		
-		ArrayList<K> parent2Elements = new ArrayList<K>();
-      
-		ArrayList<K> workingParent2 = new ArrayList<K>(parent2);
-		
-		Collections.rotate(workingParent2, startIndex);
-      
-		for (K currentP2Element : workingParent2) {
-		 	 
-			if (!parent1SubCollection.contains(currentP2Element)) {
-				parent2Elements.add(currentP2Element);
-			}
-			
-		}
-  
-		//We want to loop through the range of size for the parents.
-		for (int i = 0; i < parent2Elements.size(); i++) {
-			
-			// We want to start moving from the next element on from the end index of the inserted selection from parent 1.
-			int currentIndex = (endIndex + i) % parent2.size();
-			child.set(currentIndex, parent2Elements.get(i));
-			
-		}
-		
-		return child;
-		
-	}
-	
-	
+
 }

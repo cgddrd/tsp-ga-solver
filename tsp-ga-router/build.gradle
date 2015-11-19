@@ -1,5 +1,7 @@
 repositories {
-    maven { url "http://mvn.erichseifert.de/maven2" }
+    maven { 
+    	url "http://mvn.erichseifert.de/maven2" 
+    }
 }
 
 dependencies {
