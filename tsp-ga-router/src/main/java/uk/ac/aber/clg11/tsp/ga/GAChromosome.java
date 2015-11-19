@@ -10,7 +10,6 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 	
 	protected ArrayList<K> genes;
 	protected double currentFitness = 0;
-	protected String testString;
 	
 	public GAChromosome() {
 		this.genes = new ArrayList<K>();
@@ -32,7 +31,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 		
 	}
 	
-	public void setGenes(ArrayList<K> genes, boolean shouldRandomise) {
+	protected void setGenes(ArrayList<K> genes, boolean shouldRandomise) {
 		
 		this.genes = new ArrayList<K>(genes);
 		
@@ -41,7 +40,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 		}
 	}
 	
-	protected ArrayList<K> getGenes() {
+	public ArrayList<K> getGenes() {
 		return this.genes;
 	}
 	

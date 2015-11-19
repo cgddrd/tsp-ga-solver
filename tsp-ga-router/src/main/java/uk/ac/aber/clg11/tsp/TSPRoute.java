@@ -22,21 +22,11 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	
 	public TSPRoute(ArrayList<TSPLocation> locations, boolean shouldRandomise) {
 		super(locations, shouldRandomise);
-//		currentFitness = 0;
-//		genes = new ArrayList<TSPLocation>();
-//		testString = "Blah";
-//		
-//		genes = new ArrayList<>(locations);
-//		
-//		Collections.shuffle(genes);
-//		
-//		System.out.println(genes);
 	}
 	
 	public ArrayList<TSPLocation> getRouteLocations() {
 		return this.getGenes();
 	}
-	
 	
 	public TSPLocation getLocationAtPosition(int positionIndex) {
 		return this.getRouteLocations().get(positionIndex);
@@ -87,7 +77,7 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 		
 	}
 	
-	// Based on 2D straight-line distance equation taken. 
+	// Based on 2D straight-line distance equation. 
 	// See: http://www.calculatorsoup.com/calculators/geometry-plane/distance-two-points.php for more information.
 	private double calcStraightLineDistance(TSPLocation startLocation, TSPLocation endLocation) {
 		

@@ -62,7 +62,7 @@ public class TSP {
         cities.add(city19);
         TSPLocation city20 = new TSPLocation(160, 20);
         cities.add(city20);
-        
+//        
         //TSPRoute route1 = new TSPRoute(cities, true);
         //TSPRoute route2 = new TSPRoute(cities, true);
         
@@ -83,7 +83,7 @@ public class TSP {
         
 //        System.out.println("Initial fitness: " + pop.getFittestCandidate().getFitness());
 //        
-        TSPAlgorithm ga = new TSPAlgorithm(0.015, 0.95, 5);
+        TSPAlgorithm ga = new TSPAlgorithm(0.01, 0.95, 30, false, true);
 //        
 //        pop = ga.evolvePopulation2(pop);
 //        
@@ -101,29 +101,44 @@ public class TSP {
         
         
         
-        System.out.println("\n");
         
-        TSPPopulation pop2 = new TSPPopulation(50, true, cities);
+        
+        
+        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+        
+        frame.setTitle("start");
+        
+        TSPPopulation pop2 = new TSPPopulation(5000, true, cities);
+        
+        System.out.println("\n");
         
         System.out.println("Initial fitness2: " + pop2.getFittestCandidate().getFitness());
         
-        TSPAlgorithm ga2 = new TSPAlgorithm(0.015, 0.95, 5, true);
+        frame.updateData(pop2.getFittestCandidate().getGenes());
+        frame.redrawPlot();
         
         pop2 = ga.evolvePopulation2(pop2);
         
         // Evolve over 100 generations.
-         for (int i = 0; i < 100; i++) {
+         for (int i = 0; i < 3000; i++) {
         	 pop2 = ga.evolvePopulation2(pop2);
         }
          
         System.out.println("Finished2");
         System.out.println("Final fitness2: " + pop2.getFittestCandidate().getFitness());
         
+        TSPPlotter frame2 = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+        
+        frame2.updateData(pop2.getFittestCandidate().getGenes());
+        frame2.redrawPlot();
+        
+        frame2.setTitle("end");
+        
         System.out.println("Solution:");
         System.out.println(((TSPRoute) pop2.getFittestCandidate()).getRouteLocations());
         System.out.println(pop2.getPopulationSize());
 
-//        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+       
 //        
 //        frame.updateData();
 //        frame.redrawPlot();

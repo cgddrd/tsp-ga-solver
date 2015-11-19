@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ThreadLocalRandom;
@@ -37,52 +38,6 @@ public class TSPPlotter extends JFrame {
 	
 	LineRenderer lines = new DefaultLineRenderer2D();
 	
-	/**
-	 * 'Builder'-pattern implementation class providing a standardized mechanism by which new 'TSPPlotter' instances
-	 * can be created with the appropriate optional parameters.
-	 * @author connorgoddard
-	 *
-	 */
-	public static class TSPPlotterBuilder {
-
-		private int xAxisScaleRange = -1;
-		private int yAxisScaleRange = -1;
-		
-		private boolean xAxisHide = false;
-		private boolean yAxisHide = false;
-		
-		public TSPPlotterBuilder() {
-			
-		}
-	
-		public TSPPlotter buildTSPPlotter() {
-			
-			return new TSPPlotter(xAxisScaleRange, yAxisScaleRange, xAxisHide, yAxisHide);
-			
-		}
-		
-		public TSPPlotterBuilder setAxisHideSettings(boolean xAxisHide, boolean yAxisHide) {
-			
-			this.xAxisHide = xAxisHide;
-			this.yAxisHide = yAxisHide;
-			
-			// Return the current instance to allow for "method chaining".
-			return this;
-			
-		}
-		
-		public TSPPlotterBuilder setAxisMaxRangeSettings(int xAxisMax, int yAxisMax) {
-			
-			this.xAxisScaleRange = xAxisMax;
-			this.yAxisScaleRange = yAxisMax;
-			
-			// Return the current instance to allow for "method chaining".
-			return this;
-			
-		}
-		
-	}
-
 	private TSPPlotter() {
 		
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -157,8 +112,8 @@ public class TSPPlotter extends JFrame {
 	}
 	
 	public void updatePlot() {
-		this.updateData();
-		this.redrawPlot();
+		//this.updateData();
+		//this.redrawPlot();
 	}
 	
 	public void redrawPlot() {
@@ -183,14 +138,66 @@ public class TSPPlotter extends JFrame {
 	  
 	}
         
-    public void updateData() {
+    public void updateData(ArrayList<TSPLocation> locations) {
     	
       this.data = new DataTable(Integer.class, Integer.class);
-    	
-      for (int i = 0; i < 10; i++) {
-    	  data.add(ThreadLocalRandom.current().nextInt(100), ThreadLocalRandom.current().nextInt(100));
+      
+      for (TSPLocation loc : locations) {
+    	  
+    	  data.add(loc.xCoord, loc.yCoord);
+    	  
       }
+    	
+      //for (int i = 0; i < 10; i++) {
+    //	  data.add(ThreadLocalRandom.current().nextInt(100), ThreadLocalRandom.current().nextInt(100));
+     // }
 
     }
+    
+    /**
+	 * 'Builder'-pattern implementation class providing a standardized mechanism by which new 'TSPPlotter' instances
+	 * can be created with the appropriate optional parameters.
+	 * @author connorgoddard
+	 *
+	 */
+	public static class TSPPlotterBuilder {
+
+		private int xAxisScaleRange = -1;
+		private int yAxisScaleRange = -1;
+		
+		private boolean xAxisHide = false;
+		private boolean yAxisHide = false;
+		
+		public TSPPlotterBuilder() {
+			
+		}
+	
+		public TSPPlotter buildTSPPlotter() {
+			
+			return new TSPPlotter(xAxisScaleRange, yAxisScaleRange, xAxisHide, yAxisHide);
+			
+		}
+		
+		public TSPPlotterBuilder setAxisHideSettings(boolean xAxisHide, boolean yAxisHide) {
+			
+			this.xAxisHide = xAxisHide;
+			this.yAxisHide = yAxisHide;
+			
+			// Return the current instance to allow for "method chaining".
+			return this;
+			
+		}
+		
+		public TSPPlotterBuilder setAxisMaxRangeSettings(int xAxisMax, int yAxisMax) {
+			
+			this.xAxisScaleRange = xAxisMax;
+			this.yAxisScaleRange = yAxisMax;
+			
+			// Return the current instance to allow for "method chaining".
+			return this;
+			
+		}
+		
+	}
     
 }

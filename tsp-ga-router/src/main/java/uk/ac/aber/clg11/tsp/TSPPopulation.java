@@ -10,6 +10,10 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	public TSPPopulation(int populationSize) {
 		super(populationSize);
 	}
+	
+	public TSPPopulation(ArrayList<TSPRoute> populationChromosomes) {
+		super(populationChromosomes);
+	}
 
 	public TSPPopulation(int populationSize, boolean shouldInit, ArrayList<TSPLocation> genes) {
 		
@@ -20,8 +24,7 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 			// If we have been asked to initialize the population, set each chromosome to the collection of genes and then randomly shuffle each.
 			for (int i = 0; i < populationSize; i++) {
 				
-				//chromosomeCandidates.add();
-				
+				// Setting true on the constructor for TSPRoute makes sure the genes that make up the chromosome are shuffled.
 				this.addRoute(new TSPRoute(genes, true));
 			
 			}
@@ -48,9 +51,12 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	@Override
 	public GAChromosome<Double, TSPLocation> getFittestCandidate() {
 		
+		// We need to make sure that we reset the current fittest to null, to prevent an out-of-date fittest candidate.
+		this.currentFittestCandidate = null;
+		
 		for (TSPRoute currentCandidate : this.chromosomeCandidates) {
 			
-			// The fitness function for a TSPRoute gets LARGER, the SMALLER the total distance.
+			// REMEMBER: The fitness function for a TSPRoute gets LARGER when the total distance gets SMALLER.
 			if (this.currentFittestCandidate == null || currentCandidate.getFitness() >= currentFittestCandidate.getFitness()) {
 				
 				this.currentFittestCandidate = currentCandidate;

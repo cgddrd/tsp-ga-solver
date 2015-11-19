@@ -11,19 +11,22 @@ public class TSPAlgorithm {
 	private double crossoverRate;
 	private int tournamentSize;
 	private boolean useSingleChild;
+	private boolean useElitism;
 
 	public TSPAlgorithm(double mutationRate, double crossoverRate, int tournamentSize) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = false;
+		this.useElitism = false;
 	}
 
-	public TSPAlgorithm(double mutationRate, double crossoverRate, int tournamentSize, boolean useSingleChild) {
+	public TSPAlgorithm(double mutationRate, double crossoverRate, int tournamentSize, boolean useSingleChild, boolean useElitism) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = useSingleChild;
+		this.useElitism = useElitism;
 	}
 
 	public TSPRoute performTournamentSelection(TSPPopulation currentPopulation) {
@@ -132,14 +135,27 @@ public class TSPAlgorithm {
 	public TSPPopulation evolvePopulation2(TSPPopulation currentPopulation) throws Exception {
 
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
+		
+		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
+		
+		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
+		if (this.useElitism) {
+
+			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
+			
+			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
+			
+			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
+			
+		}
 
 		while (newPopulation.getPopulationSize() < currentPopulation.getPopulationSize()) {
 
-			//TSPRoute parent1 = this.performTournamentSelection(currentPopulation);
-			//TSPRoute parent2 = this.performTournamentSelection(currentPopulation);
+			TSPRoute parent1 = this.performTournamentSelection(currentPopulation);
+			TSPRoute parent2 = this.performTournamentSelection(currentPopulation);
 			
-			TSPRoute parent1 = this.performRouletteWheelSelection(currentPopulation);
-			TSPRoute parent2 = this.performRouletteWheelSelection(currentPopulation);
+			//TSPRoute parent1 = this.performRouletteWheelSelection(currentPopulation);
+			//TSPRoute parent2 = this.performRouletteWheelSelection(currentPopulation);
 
 			newPopulation.addRoutes(this.performOrderOneCrossover2(parent1, parent2, this.useSingleChild));
 
