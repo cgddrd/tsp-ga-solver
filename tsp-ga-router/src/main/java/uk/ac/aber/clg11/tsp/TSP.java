@@ -42,26 +42,26 @@ public class TSP {
         cities.add(city9);
         TSPLocation city10 = new TSPLocation(100, 120);
         cities.add(city10);
-//        TSPLocation city11 = new TSPLocation(180, 100);
-//        cities.add(city11);
-//        TSPLocation city12 = new TSPLocation(60, 80);
-//        cities.add(city12);
-//        TSPLocation city13 = new TSPLocation(120, 80);
-//        cities.add(city13);
-//        TSPLocation city14 = new TSPLocation(180, 60);
-//        cities.add(city14);
-//        TSPLocation city15 = new TSPLocation(20, 40);
-//        cities.add(city15);
-//        TSPLocation city16 = new TSPLocation(100, 40);
-//        cities.add(city16);
-//        TSPLocation city17 = new TSPLocation(200, 40);
-//        cities.add(city17);
-//        TSPLocation city18 = new TSPLocation(20, 20);
-//        cities.add(city18);
-//        TSPLocation city19 = new TSPLocation(60, 20);
-//        cities.add(city19);
-//        TSPLocation city20 = new TSPLocation(160, 20);
-//        cities.add(city20);
+        TSPLocation city11 = new TSPLocation(180, 100);
+        cities.add(city11);
+        TSPLocation city12 = new TSPLocation(60, 80);
+        cities.add(city12);
+        TSPLocation city13 = new TSPLocation(120, 80);
+        cities.add(city13);
+        TSPLocation city14 = new TSPLocation(180, 60);
+        cities.add(city14);
+        TSPLocation city15 = new TSPLocation(20, 40);
+        cities.add(city15);
+        TSPLocation city16 = new TSPLocation(100, 40);
+        cities.add(city16);
+        TSPLocation city17 = new TSPLocation(200, 40);
+        cities.add(city17);
+        TSPLocation city18 = new TSPLocation(20, 20);
+        cities.add(city18);
+        TSPLocation city19 = new TSPLocation(60, 20);
+        cities.add(city19);
+        TSPLocation city20 = new TSPLocation(160, 20);
+        cities.add(city20);
         
         //TSPRoute route1 = new TSPRoute(cities, true);
         //TSPRoute route2 = new TSPRoute(cities, true);
@@ -79,25 +79,25 @@ public class TSP {
 //        System.out.println(route2.getRouteLocations());
 //        System.out.println(route3.getRouteLocations());
         
-        TSPPopulation pop = new TSPPopulation(50, true, cities);
+//        TSPPopulation pop = new TSPPopulation(50, true, cities);
         
-        System.out.println("Initial fitness: " + pop.getFittestCandidate().getFitness());
-        
+//        System.out.println("Initial fitness: " + pop.getFittestCandidate().getFitness());
+//        
         TSPAlgorithm ga = new TSPAlgorithm(0.015, 0.95, 5);
-        
-        pop = ga.evolvePopulation2(pop);
-        
-        // Evolve over 100 generations.
-         for (int i = 0; i < 400; i++) {
-            //pop = ga.evolvePopulation(pop);
-        	 pop = ga.evolvePopulation2(pop);
-        }
-         
-         // Print final results
-        System.out.println("Finished");
-        System.out.println("Final fitness: " + pop.getFittestCandidate().getFitness());
-        System.out.println("Solution:");
-        System.out.println(((TSPRoute) pop.getFittestCandidate()).getRouteLocations());
+//        
+//        pop = ga.evolvePopulation2(pop);
+//        
+//        // Evolve over 100 generations.
+//         for (int i = 0; i < 400; i++) {
+//            //pop = ga.evolvePopulation(pop);
+//        	 pop = ga.evolvePopulation2(pop);
+//        }
+//         
+//         // Print final results
+//        System.out.println("Finished");
+//        System.out.println("Final fitness: " + pop.getFittestCandidate().getFitness());
+//        System.out.println("Solution:");
+//        System.out.println(((TSPRoute) pop.getFittestCandidate()).getRouteLocations());
         
         
         
@@ -112,7 +112,7 @@ public class TSP {
         pop2 = ga.evolvePopulation2(pop2);
         
         // Evolve over 100 generations.
-         for (int i = 0; i < 400; i++) {
+         for (int i = 0; i < 100; i++) {
         	 pop2 = ga.evolvePopulation2(pop2);
         }
          
@@ -121,41 +121,21 @@ public class TSP {
         
         System.out.println("Solution:");
         System.out.println(((TSPRoute) pop2.getFittestCandidate()).getRouteLocations());
+        System.out.println(pop2.getPopulationSize());
 
-       // TSPGraph frame = new TSPGraph(200, 200, false, false);
-        
-        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
-        
-        //frame.updateData();
-       // frame.redrawPlot();
-       
-        TSPPopulation pop3 = new TSPPopulation(50, true, cities);
-        TSPAlgorithm ga3 = new TSPAlgorithm(0.015, 0.95, 5, true);
-        
-        pop3 = ga.evolvePopulation2(pop3);
-        
-        // Evolve over 100 generations.
-         for (int i = 0; i < 100; i++) {
-        	 pop3 = ga.evolvePopulation2(pop3);
-        }
-         
-        System.out.println("Finished3");
-        System.out.println("Final fitness3: " + pop3.getFittestCandidate().getFitness());
-        
-        System.out.println("Solution3:");
-        System.out.println(((TSPRoute) pop3.getFittestCandidate()).getRouteLocations());
-        
-        frame.updateData();
-        frame.redrawPlot();
-        
-        Timer timer = new Timer();
-        
-	    timer.scheduleAtFixedRate(new TimerTask() {
-	  	  @Override
-	  	  public void run() {
-	  	   frame.updatePlot();
-	  	  }
-	  	}, 1*1000, 1*1000);
+//        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+//        
+//        frame.updateData();
+//        frame.redrawPlot();
+//        
+//        Timer timer = new Timer();
+//        
+//	    timer.scheduleAtFixedRate(new TimerTask() {
+//	  	  @Override
+//	  	  public void run() {
+//	  	   frame.updatePlot();
+//	  	  }
+//	  	}, 1*1000, 1*1000);
 
     }
 

@@ -6,6 +6,7 @@ public abstract class GAPopulation<T extends Number, K extends GAGene, S extends
 	
 	protected ArrayList<S> chromosomeCandidates;
 	protected S currentFittestCandidate = null;
+	protected T populationFitness = null;
 	
 	public GAPopulation() {}
 	
@@ -30,7 +31,7 @@ public abstract class GAPopulation<T extends Number, K extends GAGene, S extends
 //		}
 //	}
 	
-	public S getChromosomeCandidate(int candidateIndex) {
+	protected S getChromosomeCandidate(int candidateIndex) {
 		return this.chromosomeCandidates.get(candidateIndex);
 	}
 	
@@ -45,5 +46,7 @@ public abstract class GAPopulation<T extends Number, K extends GAGene, S extends
 	public int getPopulationSize() {
 		return this.chromosomeCandidates.size();
 	}
-
+	
+	public abstract T getPopulationFitnessSum();
+	
 }

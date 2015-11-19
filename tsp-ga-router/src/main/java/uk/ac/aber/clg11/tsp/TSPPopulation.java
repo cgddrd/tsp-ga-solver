@@ -40,6 +40,10 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	public void addRoutes(ArrayList<TSPRoute> newRoutes) {
 		this.addChromosomes(newRoutes);
 	}
+	
+	public TSPRoute getRouteAtIndex(int index) {
+		return this.getChromosomeCandidate(index);
+	}
 
 	@Override
 	public GAChromosome<Double, TSPLocation> getFittestCandidate() {
@@ -55,6 +59,24 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		}
 		
 		return this.currentFittestCandidate;
+		
+	}
+
+	@Override
+	public Double getPopulationFitnessSum() {
+		
+		if (this.populationFitness == null) {
+			
+			Double fitnessSum = 0.0;
+			
+			for (TSPRoute current : this.chromosomeCandidates) {
+				fitnessSum += current.getFitness();
+			}
+			
+			this.populationFitness = fitnessSum;
+		}
+		
+		return this.populationFitness;
 		
 	}
 
