@@ -135,7 +135,6 @@ public class TSPAlgorithm {
 	public TSPPopulation evolvePopulation2(TSPPopulation currentPopulation) throws Exception {
 
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
-		
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
 		
 		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
@@ -321,6 +320,11 @@ public class TSPAlgorithm {
 
 			int swapIndex1 = random.nextInt(chromosome.getSize());
 			int swapIndex2 = random.nextInt(chromosome.getSize());
+			
+			// Make sure the random indexes are not the same.
+			while(swapIndex1 == swapIndex2) {
+				swapIndex2 = random.nextInt(chromosome.getSize());
+			}
 
 			TSPLocation test1 = chromosome.getRouteLocations().get(swapIndex1);
 			TSPLocation test2 = chromosome.getRouteLocations().get(swapIndex2);

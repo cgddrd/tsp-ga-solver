@@ -1,5 +1,6 @@
 package uk.ac.aber.clg11.tsp;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 
@@ -26,11 +27,11 @@ public class TSP {
 		cities.add(city);
         TSPLocation city2 = new TSPLocation(180, 200);
         cities.add(city2);
-        TSPLocation city3 = new TSPLocation(80, 180);
+        TSPLocation city3 = new TSPLocation(80, 40);
         cities.add(city3);
         TSPLocation city4 = new TSPLocation(140, 180);
         cities.add(city4);
-        TSPLocation city5 = new TSPLocation(20, 160);
+        TSPLocation city5 = new TSPLocation(20, 80);
         cities.add(city5);
         TSPLocation city6 = new TSPLocation(100, 160);
         cities.add(city6);
@@ -62,7 +63,7 @@ public class TSP {
         cities.add(city19);
         TSPLocation city20 = new TSPLocation(160, 20);
         cities.add(city20);
-//        
+        
         //TSPRoute route1 = new TSPRoute(cities, true);
         //TSPRoute route2 = new TSPRoute(cities, true);
         
@@ -83,7 +84,7 @@ public class TSP {
         
 //        System.out.println("Initial fitness: " + pop.getFittestCandidate().getFitness());
 //        
-        TSPAlgorithm ga = new TSPAlgorithm(0.01, 0.95, 30, false, true);
+        TSPAlgorithm ga = new TSPAlgorithm(0.015, 0.95, 10, false, true);
 //        
 //        pop = ga.evolvePopulation2(pop);
 //        
@@ -100,28 +101,32 @@ public class TSP {
 //        System.out.println(((TSPRoute) pop.getFittestCandidate()).getRouteLocations());
         
         
-        
-        
-        
-        
         TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
         
         frame.setTitle("start");
         
-        TSPPopulation pop2 = new TSPPopulation(5000, true, cities);
+        TSPPopulation pop2 = new TSPPopulation(50, true, cities);
         
         System.out.println("\n");
         
         System.out.println("Initial fitness2: " + pop2.getFittestCandidate().getFitness());
         
         frame.updateData(pop2.getFittestCandidate().getGenes());
-        frame.redrawPlot();
+        frame.generatePlot();
         
         pop2 = ga.evolvePopulation2(pop2);
         
+        ArrayList<Double> generationFitnesses = new ArrayList<>();
+        ArrayList<Integer> generationDistances = new ArrayList<>();
+        ArrayList<Integer> generations = new ArrayList<>();
+        
         // Evolve over 100 generations.
-         for (int i = 0; i < 3000; i++) {
+         for (int i = 0; i < 100; i++) {
         	 pop2 = ga.evolvePopulation2(pop2);
+        	 TSPRoute test = (TSPRoute) pop2.getFittestCandidate();
+        	 generationDistances.add(test.getRouteDistance());
+        	 generationFitnesses.add(pop2.getFittestCandidate().getFitness());
+        	 generations.add(i+1);
         }
          
         System.out.println("Finished2");
@@ -130,7 +135,7 @@ public class TSP {
         TSPPlotter frame2 = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
         
         frame2.updateData(pop2.getFittestCandidate().getGenes());
-        frame2.redrawPlot();
+        frame2.generatePlot();
         
         frame2.setTitle("end");
         
@@ -138,7 +143,16 @@ public class TSP {
         System.out.println(((TSPRoute) pop2.getFittestCandidate()).getRouteLocations());
         System.out.println(pop2.getPopulationSize());
 
+        TSPPlotter frame3 = new TSPPlotter.TSPPlotterBuilder().setLineColour(new Color(255, 0, 0)).buildTSPPlotter();
+        
+        //frame2.updateData(locations);
+        
+        //frame3.updateData2(new ArrayList(Arrays.asList(new Integer[]{1,2,3,4,5})), new ArrayList(Arrays.asList(new Double[]{0.25, 0.5, 0.25, 0.5, 0.25})));
        
+        
+        frame3.updateData2(generations, generationDistances);
+        frame3.generatePlot(true, false);
+        
 //        
 //        frame.updateData();
 //        frame.redrawPlot();
