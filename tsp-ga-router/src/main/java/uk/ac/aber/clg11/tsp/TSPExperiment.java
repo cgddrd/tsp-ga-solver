@@ -6,17 +6,20 @@ import java.util.Date;
 public class TSPExperiment { 
 	
 	private String experimentName = "TSPExperiment_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+	private int experimentGenerations = -1;
 	
 	private TSPMutationSettings mutationSettings = new TSPMutationSettings();
 	private TSPCrossoverSettings crossoverSettings = new TSPCrossoverSettings();
 	private TSPSelectionSettings selectionSettings = new TSPSelectionSettings();
+	private TSPPopulationSettings populationSettings = new TSPPopulationSettings();
 	
 	public TSPExperiment() {
 		
 	}
 	
-	public TSPExperiment(String experimentName) {
+	public TSPExperiment(String experimentName, int generationNumber) {
 		setExperimentName(experimentName);
+		setExperimentGenerations(generationNumber);
 	}
 	
 	public void setExperimentName(String experimentName) {
@@ -25,6 +28,14 @@ public class TSPExperiment {
 	
 	public String getExperimentName() {
 		return experimentName;
+	}
+	
+	public int getExperimentGenerations() {
+		return experimentGenerations;
+	}
+
+	public void setExperimentGenerations(int experimentGenerations) {
+		this.experimentGenerations = experimentGenerations;
 	}
 
 	public TSPMutationSettings getMutationSettings() {
@@ -37,6 +48,10 @@ public class TSPExperiment {
 	
 	public TSPSelectionSettings getSelectionSettings() {
 		return selectionSettings;
+	}
+
+	public TSPPopulationSettings getPopulationSettings() {
+		return populationSettings;
 	}
 
 	public class TSPMutationSettings {
@@ -117,6 +132,24 @@ public class TSPExperiment {
 
 		public void setReturnSingleChild(Boolean returnSingleChild) {
 			this.returnSingleChild = returnSingleChild;
+		}
+		
+	}
+	
+	public class TSPPopulationSettings {
+		
+		private int populationSize;
+		
+		private TSPPopulationSettings() {
+			
+		}
+
+		public int getPopulationSize() {
+			return populationSize;
+		}
+
+		public void setPopulationSize(int populationSize) {
+			this.populationSize = populationSize;
 		}
 		
 	}

@@ -10,7 +10,7 @@ public class ConfigSettingMissingException extends Exception {
 	}
 	
 	public ConfigSettingMissingException(String configOptionName) {
-		super("Unable to locate configuration setting for required option: " + configOptionName);
+		super("Unable to locate configuration setting for required option: " + configOptionName + ".");
 		this.configOptionName = configOptionName;
 	}
 	

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tspsettings>
-	<experiment name="ex1">
+	<experiment name="ex1" gens="100">
+		<population size="50" />
 		<mutation rate="0.015"/>
 		<crossover rate="0.95"/>
 		<selection method="tournament" tournament_size="10" use_elitism="true" />

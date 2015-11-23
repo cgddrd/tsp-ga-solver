@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FilenameUtils;
 
 public class TSPGenerator {
 
@@ -49,7 +50,10 @@ public class TSPGenerator {
 
 				String fileName = line.hasOption("f") && (!line.getOptionValue("f").equals("null"))
 						? line.getOptionValue("f") : "." + File.separator + "TSPCoordsExport.csv";
-
+				
+			    // Check if the user has specified the correct '.csv' file type, and if not, correct this automatically.
+				fileName = checkExportFileExtension(fileName);
+						
 				int gridSize = line.hasOption("g") && (Integer.parseInt(line.getOptionValue("g")) > 0)
 						? Integer.parseInt(line.getOptionValue("g")) : 200;
 
@@ -83,6 +87,20 @@ public class TSPGenerator {
 		}
 
 	}
+	
+	public static String checkExportFileExtension(String filePath) {
+		
+		if (!FilenameUtils.getExtension(filePath).equals("csv")) {
+			
+			String newFilePath = FilenameUtils.removeExtension(filePath);
+			newFilePath = newFilePath.concat(".csv");
+			
+			return newFilePath;
+		}
+		
+		return filePath;
+		
+	}
 
 	public static TSPCoord[] generateTSPPoints(int noOfPoints, int gridSize) {
 
@@ -109,7 +127,7 @@ public class TSPGenerator {
 
 			File parent = file.getParentFile();
 
-			if (!parent.exists() && !parent.mkdirs()) {
+			if (parent != null && !parent.exists() && !parent.mkdirs()) {
 				throw new IllegalStateException("Error: Unable to create directory path: " + parent);
 			}
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tspsettings>
-	<experiment name="ex1">
+	<experiment gens="1000">
+		<population size="50" />
 		<mutation rate="0.015"/>
 		<crossover rate="0.95"/>
-		<selection method="tournament" tournament_size="10" use_elitism="true" />
+		<selection method="tournament" tournament_size="50" use_elitism="true" />
 	</experiment>
 </tspsettings>

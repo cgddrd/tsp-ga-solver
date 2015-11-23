@@ -73,64 +73,6 @@ public class TSPAlgorithm {
 		return currentSelectedRoute;
 		
 	}
-	
-//	public TSPRoute performRouletteWheelSelection2(TSPPopulation currentPopulation) throws Exception {
-//		
-//		Random random = new Random();
-//		
-//		double populationFitnessSum = currentPopulation.getPopulationFitnessSum();
-//		
-//		double randomPoint = ThreadLocalRandom.current().nextDouble(populationFitnessSum);
-//		
-//		double partialSum = 0.0;
-//		
-//		TSPRoute currentSelectedRoute = null;
-//		
-//		for (int i = currentPopulation.getPopulationSize() - 1; i >= 0; i--) {
-//			
-//			currentSelectedRoute = currentPopulation.getRouteAtIndex(i);
-//			partialSum += currentSelectedRoute.getFitness();
-//			
-//			if (partialSum >= randomPoint) {
-//				
-//				return currentSelectedRoute;
-//				
-//			}
-//			
-//		}
-//		
-//		if (currentSelectedRoute == null) {
-//			throw new Exception("Something went very wrong here. - No route has been selected!");
-//		}
-//		
-//		return currentSelectedRoute;
-//		
-//	}
-
-	public TSPPopulation evolvePopulation(TSPPopulation currentPopulation) throws Exception {
-
-		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
-
-		for (int i = 0; i < currentPopulation.getPopulationSize(); i++) {
-
-			TSPRoute parent1 = this.performTournamentSelection(currentPopulation);
-			TSPRoute parent2 = this.performTournamentSelection(currentPopulation);
-
-			ArrayList<TSPLocation> crossoverResult = this.performOrderOneCrossover(parent1, parent2);
-
-			TSPRoute child = new TSPRoute(crossoverResult);
-
-			newPopulation.addRoute(child);
-
-		}
-
-		for (int i = 0; i < newPopulation.getPopulationSize(); i++) {
-			this.performSwapMutation(newPopulation.getRouteAtIndex(i));
-		}
-
-		return newPopulation;
-
-	}
 
 	public TSPPopulation evolvePopulation2(TSPPopulation currentPopulation) throws Exception {
 

@@ -1,7 +1,5 @@
 package uk.ac.aber.clg11.tsp;
 
-import java.awt.Color;
-import java.io.File;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,8 +9,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-
-import com.sun.xml.internal.ws.wsdl.parser.RuntimeWSDLParser;
+import org.apache.commons.io.FilenameUtils;
 
 import uk.ac.aber.clg11.tsp.utils.IOUtils;
 
@@ -122,7 +119,6 @@ public class TSP {
 
     }
 	
-	
 	private void setupCLIParser() {
 		
 		options.addOption(Option.builder("df").longOpt("datafile").hasArg().argName("dataFile")
@@ -135,6 +131,52 @@ public class TSP {
 				.desc("Filepath of the target export location.").build());
 
 		options.addOption(new Option("help", "Print this help message."));
+		
+	}
+	
+	private void performTSPExperiment(TSPExperiment experimentSettings, ArrayList<TSPLocation> locations, String exportFileLocation) throws Exception {
+		
+		TSPPlotter plotter = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+		
+		ArrayList<Double> generationFitnesses = new ArrayList<>();
+		ArrayList<Integer> generationDistances = new ArrayList<>();
+		ArrayList<Integer> generations = new ArrayList<>();
+		
+		TSPAlgorithm ga = new TSPAlgorithm(experimentSettings.getMutationSettings().getMutationRate(), 
+											experimentSettings.getCrossoverSettings().getCrossoverRate(),
+											experimentSettings.getSelectionSettings().getTournamentSize(), 
+											experimentSettings.getSelectionSettings().getReturnSingleChild(), 
+											experimentSettings.getSelectionSettings().getUseElitism());
+		
+		TSPPopulation population = new TSPPopulation(experimentSettings.getPopulationSettings().getPopulationSize(), 
+												true, locations);
+		
+		// Plot the initial best TSP solution.
+		plotter.updateData(population.getFittestCandidate().getGenes());
+		plotter.generatePlot();
+		
+		String experimentFolderName = experimentSettings.getExperimentName();
+										
+		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "start.png");
+		
+		population = ga.evolvePopulation2(population);
+		
+		for (int i = 0; i < experimentSettings.getExperimentGenerations(); i++) {
+			
+		 population = ga.evolvePopulation2(population);
+			
+       	 TSPRoute test = (TSPRoute) population.getFittestCandidate();
+       	 generationDistances.add(test.getRouteDistance());
+       	 generationFitnesses.add(population.getFittestCandidate().getFitness());
+       	 generations.add(i+1);
+       	 
+       }
+		
+		// Plot the final best TSP solution.
+		plotter.updateData(population.getFittestCandidate().getGenes());
+		plotter.generatePlot();
+		
+		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "end.png");
 		
 	}
 	
@@ -157,8 +199,18 @@ public class TSP {
 			} else {
 				
 				String configFilePath = line.getOptionValue("cf");
+				String dataFilePath = line.getOptionValue("df");
+				String exportLocation = line.getOptionValue("e");
 				
-				ArrayList<TSPExperiment> blah = (ArrayList<TSPExperiment>) test.parseConfigFile(configFilePath);
+				ArrayList<TSPExperiment> experiments = test.parseConfigFile(configFilePath);
+				
+				ArrayList<TSPLocation> locations = test.parseTSPLocationDataFile(dataFilePath);
+				
+				for(TSPExperiment experiment : experiments) {
+					
+					performTSPExperiment(experiment, locations, exportLocation);
+					
+				}
 				
 			}
 						
@@ -171,10 +223,6 @@ public class TSP {
 			System.err.println("Error occured while running TSP generator.");
 			ex.printStackTrace();
 		}
-		
-		
-		
-		
-		
+
 	}
 }
