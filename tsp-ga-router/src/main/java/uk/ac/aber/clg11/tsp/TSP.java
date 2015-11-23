@@ -175,7 +175,11 @@ public class TSP {
 		// Plot the final best TSP solution.
 		plotter.updateData(population.getFittestCandidate().getGenes());
 		plotter.generatePlot();
+		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "end.png");
 		
+		// Plot the final best TSP solution.
+		plotter.updateData(population.getFittestCandidate().getGenes());
+		plotter.generatePlot();
 		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "end.png");
 		
 	}
