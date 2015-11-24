@@ -1,5 +1,6 @@
 package uk.ac.aber.clg11.tsp;
 
+import java.awt.Color;
 import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
@@ -17,6 +18,7 @@ public class TSP {
 	
 	private Options options = new Options();
 	private CommandLineParser parser = new DefaultParser();
+	private IOUtils io = new IOUtils();
 
 	public static void main(String[] args) throws Exception {
 		
@@ -144,6 +146,7 @@ public class TSP {
 		
 		TSPAlgorithm ga = new TSPAlgorithm(experimentSettings.getMutationSettings().getMutationRate(), 
 											experimentSettings.getCrossoverSettings().getCrossoverRate(),
+											experimentSettings.getSelectionSettings().getSelectionMethod(),
 											experimentSettings.getSelectionSettings().getTournamentSize(), 
 											experimentSettings.getSelectionSettings().getReturnSingleChild(), 
 											experimentSettings.getSelectionSettings().getUseElitism());
@@ -172,15 +175,20 @@ public class TSP {
        	 
        }
 		
-		// Plot the final best TSP solution.
-		plotter.updateData(population.getFittestCandidate().getGenes());
-		plotter.generatePlot();
-		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "end.png");
+		TSPPlotter frame3 = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setLineColour(new Color(255, 0, 0)).buildTSPPlotter();
+		
+		frame3.updateData(generations, generationFitnesses);
+		
+		frame3.generatePlot(true, false);
+		
+		frame3.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "results.png");
 		
 		// Plot the final best TSP solution.
 		plotter.updateData(population.getFittestCandidate().getGenes());
 		plotter.generatePlot();
 		plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentFolderName), "end.png");
+		
+		io.exportExperimentParametersToFile(experimentSettings, FilenameUtils.concat(exportFileLocation, experimentFolderName), "experiment.txt");
 		
 	}
 	
@@ -188,8 +196,6 @@ public class TSP {
 		
 		setupCLIParser();
 
-		IOUtils test = new IOUtils();
-		
 		try {
 			
 			// parse the command line arguments
@@ -206,12 +212,13 @@ public class TSP {
 				String dataFilePath = line.getOptionValue("df");
 				String exportLocation = line.getOptionValue("e");
 				
-				ArrayList<TSPExperiment> experiments = test.parseConfigFile(configFilePath);
+				ArrayList<TSPExperiment> experiments = io.parseConfigFile(configFilePath);
 				
-				ArrayList<TSPLocation> locations = test.parseTSPLocationDataFile(dataFilePath);
+				ArrayList<TSPLocation> locations = io.parseTSPLocationDataFile(dataFilePath);
 				
 				for(TSPExperiment experiment : experiments) {
 					
+					experiment.setNoOfLocations(locations.size());
 					performTSPExperiment(experiment, locations, exportLocation);
 					
 				}

@@ -5,8 +5,9 @@ import java.util.Date;
 
 public class TSPExperiment { 
 	
-	private String experimentName = "TSPExperiment_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-	private int experimentGenerations = -1;
+	private String experimentName = "TSPExperiment_" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date());
+	private int experimentGenerations;
+	private int noOfLocations;
 	
 	private TSPMutationSettings mutationSettings = new TSPMutationSettings();
 	private TSPCrossoverSettings crossoverSettings = new TSPCrossoverSettings();
@@ -37,6 +38,14 @@ public class TSPExperiment {
 	public void setExperimentGenerations(int experimentGenerations) {
 		this.experimentGenerations = experimentGenerations;
 	}
+	
+	public int getNoOfLocations() {
+		return noOfLocations;
+	}
+
+	public void setNoOfLocations(int noOfLocations) {
+		this.noOfLocations = noOfLocations;
+	}
 
 	public TSPMutationSettings getMutationSettings() {
 		return mutationSettings;
@@ -53,6 +62,18 @@ public class TSPExperiment {
 	public TSPPopulationSettings getPopulationSettings() {
 		return populationSettings;
 	}
+	
+	@Override
+	public String toString() {
+		return "TSPExperiment\n\nexperimentName=" + experimentName 
+				+ "\n\ndate=" + new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date()) 
+				+ "\n\nexperimentGenerations=" + experimentGenerations
+				+ "\n\nnoOfLocations=" + noOfLocations
+				+ "\n\nmutationSettings=" + mutationSettings.toString() 
+				+ "\n\ncrossoverSettings=" + crossoverSettings.toString()
+				+ "\n\nselectionSettings=" + selectionSettings.toString() 
+				+ "\n\npopulationSettings=" + populationSettings.toString();
+	}
 
 	public class TSPMutationSettings {
 		
@@ -68,6 +89,11 @@ public class TSPExperiment {
 
 		public Double getMutationRate() {
 			return mutationRate;
+		}
+
+		@Override
+		public String toString() {
+			return "TSPMutationSettings [mutationRate=" + mutationRate + "]";
 		}
 		
 	}
@@ -88,7 +114,12 @@ public class TSPExperiment {
 		public void setCrossoverRate(Double crossoverRate) {
 			this.crossoverRate = crossoverRate;
 		}
-		
+
+		@Override
+		public String toString() {
+			return "TSPCrossoverSettings [crossoverRate=" + crossoverRate + ", returnSingleChild=" + returnSingleChild + "]";
+		}
+
 	}
 	
 	public class TSPSelectionSettings {
@@ -133,7 +164,13 @@ public class TSPExperiment {
 		public void setReturnSingleChild(Boolean returnSingleChild) {
 			this.returnSingleChild = returnSingleChild;
 		}
-		
+
+		@Override
+		public String toString() {
+			return "TSPSelectionSettings [selectionMethod=" + selectionMethod + ", tournamentSize=" + tournamentSize
+					+ ", useElitism=" + useElitism + ", returnSingleChild=" + returnSingleChild + "]";
+		}
+
 	}
 	
 	public class TSPPopulationSettings {
@@ -151,6 +188,12 @@ public class TSPExperiment {
 		public void setPopulationSize(int populationSize) {
 			this.populationSize = populationSize;
 		}
+
+		@Override
+		public String toString() {
+			return "TSPPopulationSettings [populationSize=" + populationSize + "]";
+		}
+		
 		
 	}
 	

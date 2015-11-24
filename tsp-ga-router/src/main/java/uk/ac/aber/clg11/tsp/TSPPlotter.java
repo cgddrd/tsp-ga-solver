@@ -231,6 +231,16 @@ public class TSPPlotter extends JFrame {
 		}
 
 	}
+	
+	public <T extends Number, K extends Number> void updateData(ArrayList<T> xData, ArrayList<K> yData) {
+		
+		this.data = new DataTable(Double.class, Double.class);
+		
+		for (int i = 0; i < xData.size(); i++) {		
+			this.data.add(xData.get(i).doubleValue(), yData.get(i).doubleValue());
+		}
+		
+	}
 
 	/**
 	 * 'Builder'-pattern implementation class providing a standardized mechanism

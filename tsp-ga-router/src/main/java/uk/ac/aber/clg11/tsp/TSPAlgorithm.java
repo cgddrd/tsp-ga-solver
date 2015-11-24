@@ -12,21 +12,125 @@ public class TSPAlgorithm {
 	private int tournamentSize;
 	private boolean useSingleChild;
 	private boolean useElitism;
-
-	public TSPAlgorithm(double mutationRate, double crossoverRate, int tournamentSize) {
+	private String selectionMethodType;
+	
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
+		this.selectionMethodType = selectionMethodType.toLowerCase();
+		this.useSingleChild = false;
+		this.useElitism = false;
+	}
+
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, int tournamentSize) {
+		this.mutationRate = mutationRate;
+		this.crossoverRate = crossoverRate;
+		this.selectionMethodType = selectionMethodType;
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = false;
 		this.useElitism = false;
 	}
 
-	public TSPAlgorithm(double mutationRate, double crossoverRate, int tournamentSize, boolean useSingleChild, boolean useElitism) {
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, int tournamentSize, boolean useSingleChild, boolean useElitism) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
+		this.selectionMethodType = selectionMethodType;
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = useSingleChild;
 		this.useElitism = useElitism;
+	}
+	
+	// Modified from original source - https://gist.github.com/anonymous/5233837
+	// Based on pseudocode sourced - https://en.wikipedia.org/wiki/Stochastic_universal_sampling
+	public ArrayList<TSPRoute> performStochasticSamplingSelection(TSPPopulation currentPopulation, int noOfIndividuals) throws Exception {
+		
+		// Get total fitness for population.
+		Double currentFitness = currentPopulation.getPopulationFitnessSum();
+		
+		// Calculate what the distance should be between the pointers. 
+		Double pointerDistance = currentFitness / noOfIndividuals;
+		
+		// Determine our random starting position between the bounds of the pointer separation distance.
+		// Equivalent to spinning the equally spaced marks on top of the roulette wheel once. - See: http://www.fernandolobo.info/ec1516/lectures/GAs-2.pdf for more information.
+		double startLoc = ThreadLocalRandom.current().nextDouble(pointerDistance);
+		
+		ArrayList<TSPRoute> selectedRoutes = new ArrayList<>(noOfIndividuals);
+		
+		//TSPRoute currentSelectedRoute = null;
+		
+		//TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(0);
+
+		//double partialSum = 0.0;
+		
+//		double partialSum = currentSelectedRoute.getFitness();
+//		
+//		for (int i = 0; i < noOfIndividuals; i++) {
+//			   
+//			double pointer = (startLoc + i) * pointerDistance;
+//			
+//			if (partialSum >= pointer) {
+//				selectedRoutes.add(currentSelectedRoute);
+//				
+//			} else {
+//				
+//				for (int j = 1; j < currentPopulation.getPopulationSize(); j++) {
+//					
+//					currentSelectedRoute = currentPopulation.getRouteAtIndex(j);
+//					partialSum += currentSelectedRoute.getFitness();
+//					
+//					if(partialSum >= pointer) {
+//						
+//						selectedRoutes.add(currentSelectedRoute);
+//						break;
+//						
+//					}
+//					
+//				}
+//			}
+//
+//			//selectedRoutes.add(currentSelectedRoute);
+//			
+//		}
+//		
+		int index = 0;
+		
+		TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(index); 
+		
+		double partialSum = currentSelectedRoute.getFitness();
+		
+		for (int i = 0; i < noOfIndividuals; i++) {
+			
+			double pointer = (startLoc + i) * pointerDistance;
+		     
+			if (partialSum >= pointer) {
+				
+				selectedRoutes.add(currentSelectedRoute);
+				
+			} else {
+				
+				
+				for (++index; index < currentPopulation.getPopulationSize(); index++) {
+					
+					currentSelectedRoute = currentPopulation.getRouteAtIndex(index);
+					partialSum += currentSelectedRoute.getFitness();
+					
+					if(partialSum >= pointer) {
+						
+						selectedRoutes.add(currentSelectedRoute);
+						break;
+						
+					}
+				}
+			}
+			
+			//currentSelectedRoute = null;
+		}
+		
+		if (selectedRoutes.isEmpty()) {
+			throw new Exception("Something went very wrong here. - No route has been selected!");
+		}
+		
+		return selectedRoutes;
 	}
 
 	public TSPRoute performTournamentSelection(TSPPopulation currentPopulation) {
@@ -79,6 +183,8 @@ public class TSPAlgorithm {
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
 		
+		this.useElitism = false;
+		
 		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
 		if (this.useElitism) {
 
@@ -89,14 +195,55 @@ public class TSPAlgorithm {
 			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
 			
 		}
-
+		
+		// Prepare for SUS selection.
+		ArrayList<TSPRoute> stochasticSelectedRoutes = null;
+		int selectionIncrement = 0;
+		
 		while (newPopulation.getPopulationSize() < currentPopulation.getPopulationSize()) {
-
-			TSPRoute parent1 = this.performTournamentSelection(currentPopulation);
-			TSPRoute parent2 = this.performTournamentSelection(currentPopulation);
 			
-			//TSPRoute parent1 = this.performRouletteWheelSelection(currentPopulation);
-			//TSPRoute parent2 = this.performRouletteWheelSelection(currentPopulation);
+			TSPRoute parent1 = null;
+			TSPRoute parent2 = null;
+			
+			switch(this.selectionMethodType) {
+				
+				case "tournament":
+				case "ts":
+					
+					if (this.tournamentSize < 1) {
+						tournamentSize = 50;
+						System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
+						//throw new Exception("Tournament selection active, but tournament size is < 1. Aborting.");
+					}
+					
+					parent1 = this.performTournamentSelection(currentPopulation);
+					parent2 = this.performTournamentSelection(currentPopulation);
+
+					break;
+				case "sus":
+				case "stochastic_uniform_sampling":
+					
+					// Check if we are yet to initialize the SUS selection (which should be selected all in one go prior to evolving the population)
+					if (stochasticSelectedRoutes == null) {
+						stochasticSelectedRoutes = performStochasticSamplingSelection(currentPopulation, (currentPopulation.getPopulationSize() - newPopulation.getPopulationSize()));
+					}
+					
+					parent1 = stochasticSelectedRoutes.get(selectionIncrement++);
+					parent2 = stochasticSelectedRoutes.get(selectionIncrement++);
+					
+					break;
+				case "rws":
+				case "roulette":
+				case "roulette_wheel":
+					
+					parent1 = this.performRouletteWheelSelection(currentPopulation);
+					parent2 = this.performRouletteWheelSelection(currentPopulation);
+					
+					break;
+				default:
+					throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
+				
+			}
 
 			newPopulation.addRoutes(this.performOrderOneCrossover2(parent1, parent2, this.useSingleChild));
 

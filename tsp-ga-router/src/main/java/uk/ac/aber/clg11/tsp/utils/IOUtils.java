@@ -11,6 +11,8 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -150,13 +152,9 @@ public class IOUtils {
 						
 						sSettings.setSelectionMethod(selectionConfigAttributes.getNamedItem("method").getNodeValue());
 						
-						if (sSettings.getSelectionMethod().toLowerCase().equals("tournament")) {
-							
-							sSettings.setTournamentSize(selectionConfigAttributes.getNamedItem("tournament_size") != null ? 
-														Integer.parseInt(selectionConfigAttributes.getNamedItem("tournament_size").getNodeValue()) : 1);
-							
-						}
-						
+						sSettings.setTournamentSize(selectionConfigAttributes.getNamedItem("tournament_size") != null ? 
+														Integer.parseInt(selectionConfigAttributes.getNamedItem("tournament_size").getNodeValue()) : -1);
+										
 						sSettings.setReturnSingleChild(selectionConfigAttributes.getNamedItem("return_single_child") != null ?
 													   Boolean.valueOf(selectionConfigAttributes.getNamedItem("return_single_child").getNodeValue()) : false);
 						
@@ -245,6 +243,24 @@ public class IOUtils {
 	    }
 		
 		return null;
+		
+	}
+	
+	public void exportExperimentParametersToFile(TSPExperiment experimentSettings, String exportFilePath, String exportFileName) {
+		
+		File file = new File(FilenameUtils.concat(exportFilePath, exportFileName));
+		
+		File parent = file.getParentFile();
+
+		if (parent != null && !parent.exists() && !parent.mkdirs()) {
+			throw new IllegalStateException("Error: Unable to create directory path: " + parent);
+		}
+		
+		try {
+			FileUtils.writeStringToFile(file, experimentSettings.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 
