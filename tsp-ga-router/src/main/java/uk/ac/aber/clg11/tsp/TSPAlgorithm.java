@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+
 public class TSPAlgorithm {
 
 	private double mutationRate;
@@ -56,42 +58,6 @@ public class TSPAlgorithm {
 		
 		ArrayList<TSPRoute> selectedRoutes = new ArrayList<>(noOfIndividuals);
 		
-		//TSPRoute currentSelectedRoute = null;
-		
-		//TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(0);
-
-		//double partialSum = 0.0;
-		
-//		double partialSum = currentSelectedRoute.getFitness();
-//		
-//		for (int i = 0; i < noOfIndividuals; i++) {
-//			   
-//			double pointer = (startLoc + i) * pointerDistance;
-//			
-//			if (partialSum >= pointer) {
-//				selectedRoutes.add(currentSelectedRoute);
-//				
-//			} else {
-//				
-//				for (int j = 1; j < currentPopulation.getPopulationSize(); j++) {
-//					
-//					currentSelectedRoute = currentPopulation.getRouteAtIndex(j);
-//					partialSum += currentSelectedRoute.getFitness();
-//					
-//					if(partialSum >= pointer) {
-//						
-//						selectedRoutes.add(currentSelectedRoute);
-//						break;
-//						
-//					}
-//					
-//				}
-//			}
-//
-//			//selectedRoutes.add(currentSelectedRoute);
-//			
-//		}
-//		
 		int index = 0;
 		
 		TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(index); 
@@ -126,11 +92,49 @@ public class TSPAlgorithm {
 			//currentSelectedRoute = null;
 		}
 		
+		
+		
+//		double[] pointers = new double[noOfIndividuals];
+//				
+//		for (int i = 0; i < noOfIndividuals; i++) {
+//			
+//			double pointer = startLoc + i * pointerDistance;
+//			
+//			pointers[i] = pointer;
+//			
+//		}
+//		
+//		selectedRoutes = test1(currentPopulation, pointers);
+		
 		if (selectedRoutes.isEmpty()) {
 			throw new Exception("Something went very wrong here. - No route has been selected!");
 		}
 		
 		return selectedRoutes;
+	}
+	
+	public ArrayList<TSPRoute> test1 (TSPPopulation currentPopulation, double[] points) {
+		
+		ArrayList<TSPRoute> keep = new ArrayList<>();
+		
+		double partialSum = 0.0;
+		int index = 0;
+		
+		for (double p : points)
+		{
+			
+			while (partialSum < p) {
+				partialSum += currentPopulation.getRouteAtIndex(index).getFitness();
+				index++;
+			}
+			
+			//This shouldn't be index-1??
+			keep.add(currentPopulation.getRouteAtIndex(index-1));
+			
+		}
+		
+		return keep;
+		
 	}
 
 	public TSPRoute performTournamentSelection(TSPPopulation currentPopulation) {
@@ -331,7 +335,6 @@ public class TSPAlgorithm {
 
 		} else {
 			
-			//System.out.println("Crossover cancelled.");
 			// If we get to this point, we have determined that we shouldn't be performing crossover on this iteration.
 			// Therefore, simply return the two original parents unchanged.
 			routes.add(parent1);
@@ -340,6 +343,135 @@ public class TSPAlgorithm {
 		}
 
 		return routes;
+	}
+	
+	public ArrayList<TSPRoute> performCycleCrossover(TSPRoute parent1, TSPRoute parent2) throws Exception {
+		
+		if (parent1.getSize() == parent2.getSize()) {
+			
+			int AlleleCount = parent1.getRouteSize();
+			
+			boolean[] flags = new boolean[AlleleCount];
+			
+			Double_Index_Value_Pair TempPair = new Double_Index_Value_Pair();
+			
+			// Generate a hashtable for parent 2's index.
+			Hashtable HT1 = new Hashtable();
+			for (int i = 0; i < AlleleCount; i++) {
+				
+				TempPair = new Double_Index_Value_Pair();
+				TempPair.value2 = parent2.getLocationAtPosition(i);
+				TempPair.index2 = i;
+				TempPair.value1 = parent1.getLocationAtPosition(i);
+				HT1.put(parent2.getLocationAtPosition(i), TempPair);
+				
+			}
+			
+			ArrayList<ArrayList <Double_Index_Value_Pair>> cycles = new ArrayList<>();
+			
+			int cycleStart = 0;
+			
+			for (int i = 0; i < AlleleCount; i++) {
+				
+				ArrayList<Double_Index_Value_Pair> tempCycle = new ArrayList<>();
+				
+				if (!flags[i]) {
+					
+					cycleStart = i;
+					
+					TempPair = (Double_Index_Value_Pair) HT1.get(parent1.getLocationAtPosition(i));
+					tempCycle.add(TempPair);
+					
+					flags[TempPair.index2] = true;
+					
+					while(TempPair.index2 != cycleStart) {
+						
+						TempPair = (Double_Index_Value_Pair) HT1.get(parent1.getLocationAtPosition(TempPair.index2));
+						tempCycle.add(TempPair);
+						flags[TempPair.index2] = true;
+						
+					}
+					
+					cycles.add(tempCycle);
+				}
+				
+			}
+			
+			// 3. Copy alternate cycles to children
+			
+			TSPRoute child1 = new TSPRoute();
+			TSPRoute child2 = new TSPRoute();
+			
+			int counter = 0;
+			
+			for(ArrayList<Double_Index_Value_Pair> c : cycles) {
+				
+				for (Double_Index_Value_Pair tempPair : c) {
+					
+					if (counter % 2 == 0) {
+						
+						child1.setLocationAtPosition(tempPair.index2, tempPair.value1);
+						child2.setLocationAtPosition(tempPair.index2, tempPair.value2);
+						
+					} else {
+						
+						child1.setLocationAtPosition(tempPair.index2, tempPair.value2);
+						child2.setLocationAtPosition(tempPair.index2, tempPair.value1);
+						
+					}
+				}
+				
+				counter++;
+			}
+			
+			
+			ArrayList<TSPRoute> children = new ArrayList<>();
+			children.add(child2);
+			children.add(child1);
+			
+			
+			return children;
+			
+		}
+		
+		throw new Exception("oh dear");
+
+	}
+	
+	public class Double_Index_Value_Pair {
+		
+		private TSPLocation value2;
+		
+		public TSPLocation getValue2() {
+			return value2;
+		}
+
+		public void setValue2(TSPLocation value2) {
+			this.value2 = value2;
+		}
+
+		public int getIndex2() {
+			return index2;
+		}
+
+		public void setIndex2(int index2) {
+			this.index2 = index2;
+		}
+
+		public TSPLocation getValue1() {
+			return value1;
+		}
+
+		public void setValue1(TSPLocation value1) {
+			this.value1 = value1;
+		}
+
+		private int index2;
+		private TSPLocation value1;
+		
+		public Double_Index_Value_Pair() {
+			
+		}
 	}
 
 	public ArrayList<TSPLocation> performOrderOneCrossover(TSPRoute parent1, TSPRoute parent2) throws Exception {

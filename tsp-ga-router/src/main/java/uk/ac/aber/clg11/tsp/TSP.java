@@ -2,6 +2,7 @@ package uk.ac.aber.clg11.tsp;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -12,6 +13,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 
+import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+
+import uk.ac.aber.clg11.tsp.TSPAlgorithm.Double_Index_Value_Pair;
 import uk.ac.aber.clg11.tsp.utils.IOUtils;
 
 public class TSP {
@@ -21,103 +25,14 @@ public class TSP {
 	private IOUtils io = new IOUtils();
 
 	public static void main(String[] args) throws Exception {
-		
-		
-		
-//		ArrayList<TSPLocation> cities = new ArrayList<TSPLocation>();
-//        
-//		TSPLocation city = new TSPLocation(60, 200);
-//		cities.add(city);
-//        TSPLocation city2 = new TSPLocation(180, 200);
-//        cities.add(city2);
-//        TSPLocation city3 = new TSPLocation(80, 40);
-//        cities.add(city3);
-//        TSPLocation city4 = new TSPLocation(140, 180);
-//        cities.add(city4);
-//        TSPLocation city5 = new TSPLocation(20, 80);
-//        cities.add(city5);
-//        TSPLocation city6 = new TSPLocation(100, 160);
-//        cities.add(city6);
-//        TSPLocation city7 = new TSPLocation(200, 160);
-//        cities.add(city7);
-//        TSPLocation city8 = new TSPLocation(140, 140);
-//        cities.add(city8);
-//        TSPLocation city9 = new TSPLocation(40, 120);
-//        cities.add(city9);
-//        TSPLocation city10 = new TSPLocation(100, 120);
-//        cities.add(city10);
-//        TSPLocation city11 = new TSPLocation(180, 100);
-//        cities.add(city11);
-//        TSPLocation city12 = new TSPLocation(60, 80);
-//        cities.add(city12);
-//        TSPLocation city13 = new TSPLocation(120, 80);
-//        cities.add(city13);
-//        TSPLocation city14 = new TSPLocation(180, 60);
-//        cities.add(city14);
-//        TSPLocation city15 = new TSPLocation(20, 40);
-//        cities.add(city15);
-//        TSPLocation city16 = new TSPLocation(100, 40);
-//        cities.add(city16);
-//        TSPLocation city17 = new TSPLocation(200, 40);
-//        cities.add(city17);
-//        TSPLocation city18 = new TSPLocation(20, 20);
-//        cities.add(city18);
-//        TSPLocation city19 = new TSPLocation(60, 20);
-//        cities.add(city19);
-//        TSPLocation city20 = new TSPLocation(160, 20);
-//        cities.add(city20);
-//  
-//        TSPAlgorithm ga = new TSPAlgorithm(0.015, 0.95, 10, false, true);
-//        
-//        TSPPlotter frame = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
-//        
-//        frame.setTitle("start");
-//        
-//        TSPPopulation pop2 = new TSPPopulation(50, true, cities);
-//        
-//        System.out.println("\n");
-//        
-//        System.out.println("Initial fitness2: " + pop2.getFittestCandidate().getFitness());
-//        
-//        frame.updateData(pop2.getFittestCandidate().getGenes());
-//        frame.generatePlot();
-//        
-//        pop2 = ga.evolvePopulation2(pop2);
-//        
-//        ArrayList<Double> generationFitnesses = new ArrayList<>();
-//        ArrayList<Integer> generationDistances = new ArrayList<>();
-//        ArrayList<Integer> generations = new ArrayList<>();
-//        
-//        // Evolve over 100 generations.
-//         for (int i = 0; i < 100; i++) {
-//        	 pop2 = ga.evolvePopulation2(pop2);
-//        	 TSPRoute test = (TSPRoute) pop2.getFittestCandidate();
-//        	 generationDistances.add(test.getRouteDistance());
-//        	 generationFitnesses.add(pop2.getFittestCandidate().getFitness());
-//        	 generations.add(i+1);
-//        }
-//         
-//        System.out.println("Finished2");
-//        System.out.println("Final fitness2: " + pop2.getFittestCandidate().getFitness());
-//        
-//        TSPPlotter frame2 = new TSPPlotter.TSPPlotterBuilder().setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
-//        
-//        frame2.updateData(pop2.getFittestCandidate().getGenes());
-//        frame2.generatePlot();
-//        
-//        frame2.setTitle("end");
-//        
-//        System.out.println("Solution:");
-//        System.out.println(((TSPRoute) pop2.getFittestCandidate()).getRouteLocations());
-//        System.out.println(pop2.getPopulationSize());
-//
-//        TSPPlotter frame3 = new TSPPlotter.TSPPlotterBuilder().setLineColour(new Color(255, 0, 0)).buildTSPPlotter();
-//
-//        frame3.updateData2(generations, generationDistances);
-//        frame3.generatePlot(true, false);
-		
+
 		TSP tsp = new TSP();
-		tsp.runTSPGASolver(args);
+		//tsp.runTSPGASolver(args);
+		
+		ArrayList<Integer> parent1 = new ArrayList<>(Arrays.asList(8,4,7,3,6,2,5,1,9,0));
+		ArrayList<Integer> parent2 = new ArrayList<>(Arrays.asList(0,1,2,3,4,5,6,7,8,9));
+		
+		tsp.performCycleCrossover(parent1, parent2);
 
     }
 	
@@ -235,5 +150,136 @@ public class TSP {
 			ex.printStackTrace();
 		}
 
+	}
+	
+public ArrayList<Integer> performCycleCrossover(ArrayList<Integer> parent1, ArrayList<Integer> parent2) throws Exception {
+		
+		if (parent1.size() == parent2.size()) {
+			
+			int AlleleCount = parent1.size();
+			
+			boolean[] flags = new boolean[AlleleCount];
+			
+			Double_Index_Value_Pair TempPair = new Double_Index_Value_Pair();
+			
+			// 1. Generate a hashtable for parent 2's index.
+			Hashtable HT1 = new Hashtable();
+			for (int i = 0; i < AlleleCount; i++) {
+				
+				TempPair = new Double_Index_Value_Pair();
+				TempPair.value2 = parent2.get(i);
+				TempPair.index2 = i;
+				TempPair.value1 = parent1.get(i);
+				HT1.put(parent2.get(i), TempPair);
+				
+			}
+			
+			// 2. Generate the cycles.
+			
+			ArrayList<ArrayList <Double_Index_Value_Pair>> cycles = new ArrayList<>();
+			
+			int cycleStart = 0;
+			
+			for (int i = 0; i < AlleleCount; i++) {
+				
+				ArrayList<Double_Index_Value_Pair> tempCycle = new ArrayList<>();
+				
+				if (!flags[i]) {
+					
+					cycleStart = i;
+					
+					TempPair = (Double_Index_Value_Pair) HT1.get(parent1.get(i));
+					tempCycle.add(TempPair);
+					
+					flags[TempPair.index2] = true;
+					
+					while(TempPair.index2 != cycleStart) {
+						
+						TempPair = (Double_Index_Value_Pair) HT1.get(parent1.get(TempPair.index2));
+						tempCycle.add(TempPair);
+						flags[TempPair.index2] = true;
+						
+					}
+					
+					cycles.add(tempCycle);
+				}
+				
+			}
+			
+			// 3. Copy alternate cycles to children
+			
+			int[] child1 = new int[AlleleCount];
+			int[] child2 = new int[AlleleCount];
+			
+			int counter = 0;
+			
+			for(ArrayList<Double_Index_Value_Pair> c : cycles) {
+				
+				for (Double_Index_Value_Pair tempPair : c) {
+					
+					if (counter % 2 == 0) {
+						
+						child1[tempPair.index2] = tempPair.value1;
+						child2[tempPair.index2] = tempPair.value2;
+						
+					} else {
+						
+						child1[tempPair.index2] = tempPair.value2;
+						child2[tempPair.index2] = tempPair.value1;
+						
+					}
+				}
+				
+				counter++;
+			}
+			
+			
+			ArrayList<Integer> children = new ArrayList<>();
+			
+			System.out.println("Child 1: " + Arrays.toString(child1));
+			System.out.println("Child 2: " + Arrays.toString(child2));
+			
+			return children;
+			
+		}
+		
+		throw new Exception("oh dear");
+
+	}
+	
+	public class Double_Index_Value_Pair {
+		
+		private int value2;
+		
+		public int getValue2() {
+			return value2;
+		}
+
+		public void setValue2(int value2) {
+			this.value2 = value2;
+		}
+
+		public int getIndex2() {
+			return index2;
+		}
+
+		public void setIndex2(int index2) {
+			this.index2 = index2;
+		}
+
+		public int getValue1() {
+			return value1;
+		}
+
+		public void setValue1(int value1) {
+			this.value1 = value1;
+		}
+
+		private int index2;
+		private int value1;
+		
+		public Double_Index_Value_Pair() {
+			
+		}
 	}
 }
