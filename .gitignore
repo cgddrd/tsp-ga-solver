@@ -4,6 +4,7 @@
 build/
 bin/
 *.class
+.classpath
 
 # Potential output file formats from TSP applications.
 *.csv

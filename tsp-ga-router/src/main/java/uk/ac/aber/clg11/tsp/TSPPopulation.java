@@ -86,4 +86,31 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		
 	}
 
+	@Override
+	public Double getPopulationFitnessAverage() {
+		
+		Double populationFitnessSum = this.getPopulationFitnessSum();
+		
+		return populationFitnessSum / this.getPopulationSize();
+		
+	}
+
+	@Override
+	public Double getPopulationFitnessMax() {
+		
+		Double maxRouteFitness = 0.0;
+		
+		for (TSPRoute currentRoute : this.getRoutes()) {
+			
+			if (maxRouteFitness < currentRoute.getFitness()) {
+				
+				maxRouteFitness = currentRoute.getFitness();
+				
+			}
+		}
+		
+		return maxRouteFitness;
+		
+	}
+
 }

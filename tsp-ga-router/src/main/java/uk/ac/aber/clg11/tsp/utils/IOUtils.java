@@ -122,8 +122,6 @@ public class IOUtils {
 			
 			doc.getDocumentElement().normalize();
 			
-			//System.out.println("Root element :" + doc.getDocumentElement().getNodeName()); 
-			
 			NodeList nList = doc.getElementsByTagName("experiment");
 			
 			ArrayList<TSPExperiment> experiments = new ArrayList<>();
@@ -137,8 +135,6 @@ public class IOUtils {
 				if (currentExperimentNode.getNodeType() == Node.ELEMENT_NODE) {
 					
 					Element currentExperimentElement = (Element) currentExperimentNode;
-					
-					//String selectionType = currentExperimentElement.getElementsByTagName("selection_type").item(0).getTextContent();
 					
 					// 1. Parse selection settings.
 					
@@ -186,6 +182,8 @@ public class IOUtils {
 					NamedNodeMap crossoverConfigAttributes = currentExperimentElement.getElementsByTagName("crossover").item(0).getAttributes(); 
 					
 					TSPCrossoverSettings cSettings = experiment.getCrossoverSettings();
+
+					cSettings.setCrossoverMethod(crossoverConfigAttributes.getNamedItem("method").getNodeValue());
 					
 					if (crossoverConfigAttributes.getNamedItem("rate") == null) {
 						

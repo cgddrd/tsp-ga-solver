@@ -16,6 +16,10 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 		super();
 	}
 	
+	public TSPRoute(TSPLocation[] locations) {
+		super(locations);
+	}
+	
 	public TSPRoute(ArrayList<TSPLocation> locations) {
 		super(locations, false);
 	}

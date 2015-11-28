@@ -1,11 +1,14 @@
 package uk.ac.aber.clg11.tsp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Hashtable;
+import uk.ac.aber.clg11.tsp.TSPAlgorithm.CycleCrossoverItem;
+import uk.ac.aber.clg11.tsp.ga.GAGene;
 
 public class TSPAlgorithm {
 
@@ -15,126 +18,130 @@ public class TSPAlgorithm {
 	private boolean useSingleChild;
 	private boolean useElitism;
 	private String selectionMethodType;
-	
-	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType) {
+	private String crossoverMethodType;
+
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.selectionMethodType = selectionMethodType.toLowerCase();
+		this.crossoverMethodType = crossoverMethodType.toLowerCase();
 		this.useSingleChild = false;
 		this.useElitism = false;
 	}
 
-	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, int tournamentSize) {
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType, int tournamentSize) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
-		this.selectionMethodType = selectionMethodType;
+		this.selectionMethodType = selectionMethodType.toLowerCase();
+		this.crossoverMethodType = crossoverMethodType.toLowerCase();
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = false;
 		this.useElitism = false;
 	}
 
-	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, int tournamentSize, boolean useSingleChild, boolean useElitism) {
+	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType, int tournamentSize, boolean useSingleChild, boolean useElitism) {
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
-		this.selectionMethodType = selectionMethodType;
+		this.selectionMethodType = selectionMethodType.toLowerCase();
+		this.crossoverMethodType = crossoverMethodType.toLowerCase();
 		this.tournamentSize = tournamentSize;
 		this.useSingleChild = useSingleChild;
 		this.useElitism = useElitism;
 	}
-	
+
 	// Modified from original source - https://gist.github.com/anonymous/5233837
 	// Based on pseudocode sourced - https://en.wikipedia.org/wiki/Stochastic_universal_sampling
 	public ArrayList<TSPRoute> performStochasticSamplingSelection(TSPPopulation currentPopulation, int noOfIndividuals) throws Exception {
-		
+
 		// Get total fitness for population.
 		Double currentFitness = currentPopulation.getPopulationFitnessSum();
-		
+
 		// Calculate what the distance should be between the pointers. 
 		Double pointerDistance = currentFitness / noOfIndividuals;
-		
+
 		// Determine our random starting position between the bounds of the pointer separation distance.
 		// Equivalent to spinning the equally spaced marks on top of the roulette wheel once. - See: http://www.fernandolobo.info/ec1516/lectures/GAs-2.pdf for more information.
 		double startLoc = ThreadLocalRandom.current().nextDouble(pointerDistance);
-		
+
 		ArrayList<TSPRoute> selectedRoutes = new ArrayList<>(noOfIndividuals);
-		
+
 		int index = 0;
-		
+
 		TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(index); 
-		
+
 		double partialSum = currentSelectedRoute.getFitness();
-		
+
 		for (int i = 0; i < noOfIndividuals; i++) {
-			
+
 			double pointer = (startLoc + i) * pointerDistance;
-		     
+
 			if (partialSum >= pointer) {
-				
+
 				selectedRoutes.add(currentSelectedRoute);
-				
+
 			} else {
-				
-				
+
+
 				for (++index; index < currentPopulation.getPopulationSize(); index++) {
-					
+
 					currentSelectedRoute = currentPopulation.getRouteAtIndex(index);
 					partialSum += currentSelectedRoute.getFitness();
-					
+
 					if(partialSum >= pointer) {
-						
+
 						selectedRoutes.add(currentSelectedRoute);
 						break;
-						
+
 					}
 				}
 			}
-			
+
 			//currentSelectedRoute = null;
 		}
-		
-		
-		
-//		double[] pointers = new double[noOfIndividuals];
-//				
-//		for (int i = 0; i < noOfIndividuals; i++) {
-//			
-//			double pointer = startLoc + i * pointerDistance;
-//			
-//			pointers[i] = pointer;
-//			
-//		}
-//		
-//		selectedRoutes = test1(currentPopulation, pointers);
-		
+
+
+
+		//		double[] pointers = new double[noOfIndividuals];
+		//				
+		//		for (int i = 0; i < noOfIndividuals; i++) {
+		//			
+		//			double pointer = startLoc + i * pointerDistance;
+		//			
+		//			pointers[i] = pointer;
+		//			
+		//		}
+		//		
+		//		selectedRoutes = test1(currentPopulation, pointers);
+
 		if (selectedRoutes.isEmpty()) {
 			throw new Exception("Something went very wrong here. - No route has been selected!");
 		}
-		
+
 		return selectedRoutes;
 	}
-	
+
 	public ArrayList<TSPRoute> test1 (TSPPopulation currentPopulation, double[] points) {
-		
+
 		ArrayList<TSPRoute> keep = new ArrayList<>();
-		
+
 		double partialSum = 0.0;
 		int index = 0;
-		
+
 		for (double p : points)
 		{
-			
+
 			while (partialSum < p) {
 				partialSum += currentPopulation.getRouteAtIndex(index).getFitness();
 				index++;
 			}
-			
+
 			//This shouldn't be index-1??
 			keep.add(currentPopulation.getRouteAtIndex(index-1));
-			
+
 		}
-		
+
 		return keep;
-		
+
 	}
 
 	public TSPRoute performTournamentSelection(TSPPopulation currentPopulation) {
@@ -154,102 +161,117 @@ public class TSPAlgorithm {
 		return (TSPRoute) tournamentSelectionPool.getFittestCandidate();
 
 	}
-	
+
 	public TSPRoute performRouletteWheelSelection(TSPPopulation currentPopulation) throws Exception {
-		
+
 		Random random = new Random();
-		
+
 		double populationFitnessSum = currentPopulation.getPopulationFitnessSum();
-		
+
 		double randomPoint = ThreadLocalRandom.current().nextDouble(populationFitnessSum);
-		
+
 		double partialSum = 0.0;
-		
+
 		TSPRoute currentSelectedRoute = null;
-		
+
 		for (int i = 0; (i < currentPopulation.getPopulationSize() && partialSum < randomPoint); i++) {
-			
+
 			currentSelectedRoute = currentPopulation.getRouteAtIndex(i);
 			partialSum += currentSelectedRoute.getFitness();
-			
+
 		}
-		
+
 		if (currentSelectedRoute == null) {
 			throw new Exception("Something went very wrong here. - No route has been selected!");
 		}
-		
+
 		return currentSelectedRoute;
-		
+
 	}
 
-	public TSPPopulation evolvePopulation2(TSPPopulation currentPopulation) throws Exception {
+	public TSPPopulation evolvePopulation(TSPPopulation currentPopulation) throws Exception {
 
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
-		
+
 		this.useElitism = false;
-		
+
 		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
 		if (this.useElitism) {
 
 			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-			
+
 			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
-			
+
 			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-			
+
 		}
-		
+
 		// Prepare for SUS selection.
 		ArrayList<TSPRoute> stochasticSelectedRoutes = null;
 		int selectionIncrement = 0;
-		
+
 		while (newPopulation.getPopulationSize() < currentPopulation.getPopulationSize()) {
-			
+
 			TSPRoute parent1 = null;
 			TSPRoute parent2 = null;
-			
+
 			switch(this.selectionMethodType) {
-				
-				case "tournament":
-				case "ts":
-					
-					if (this.tournamentSize < 1) {
-						tournamentSize = 50;
-						System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
-						//throw new Exception("Tournament selection active, but tournament size is < 1. Aborting.");
-					}
-					
-					parent1 = this.performTournamentSelection(currentPopulation);
-					parent2 = this.performTournamentSelection(currentPopulation);
 
-					break;
-				case "sus":
-				case "stochastic_uniform_sampling":
-					
-					// Check if we are yet to initialize the SUS selection (which should be selected all in one go prior to evolving the population)
-					if (stochasticSelectedRoutes == null) {
-						stochasticSelectedRoutes = performStochasticSamplingSelection(currentPopulation, (currentPopulation.getPopulationSize() - newPopulation.getPopulationSize()));
-					}
-					
-					parent1 = stochasticSelectedRoutes.get(selectionIncrement++);
-					parent2 = stochasticSelectedRoutes.get(selectionIncrement++);
-					
-					break;
-				case "rws":
-				case "roulette":
-				case "roulette_wheel":
-					
-					parent1 = this.performRouletteWheelSelection(currentPopulation);
-					parent2 = this.performRouletteWheelSelection(currentPopulation);
-					
-					break;
-				default:
-					throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
-				
+			case "tournament":
+			case "ts":
+
+				if (this.tournamentSize < 1) {
+					tournamentSize = 50;
+					System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
+					//throw new Exception("Tournament selection active, but tournament size is < 1. Aborting.");
+				}
+
+				parent1 = this.performTournamentSelection(currentPopulation);
+				parent2 = this.performTournamentSelection(currentPopulation);
+
+				break;
+			case "sus":
+			case "stochastic_uniform_sampling":
+
+				// Check if we are yet to initialize the SUS selection (which should be selected all in one go prior to evolving the population)
+				if (stochasticSelectedRoutes == null) {
+					stochasticSelectedRoutes = performStochasticSamplingSelection(currentPopulation, (currentPopulation.getPopulationSize() - newPopulation.getPopulationSize()));
+				}
+
+				parent1 = stochasticSelectedRoutes.get(selectionIncrement++);
+				parent2 = stochasticSelectedRoutes.get(selectionIncrement++);
+
+				break;
+			case "rws":
+			case "roulette":
+			case "roulette_wheel":
+
+				parent1 = this.performRouletteWheelSelection(currentPopulation);
+				parent2 = this.performRouletteWheelSelection(currentPopulation);
+
+				break;
+			default:
+				throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
+
 			}
-
-			newPopulation.addRoutes(this.performOrderOneCrossover2(parent1, parent2, this.useSingleChild));
+			
+			switch (this.crossoverMethodType) {
+			
+			case "ordered":
+			case "orderone":
+			case "order-one":
+			case "ox1":
+				newPopulation.addRoutes(this.performOrderOneCrossover(parent1, parent2, this.useSingleChild));
+				break;
+				
+			case "cycle":
+			case "cyclecrossover":
+				newPopulation.addRoutes(this.performCycleCrossover(parent1, parent2));
+				break;
+			default:
+				throw new Exception("Specified crossover method '" + this.crossoverMethodType + "' not valid. Unable to perform GA crossover. Aborting.");
+			}
 
 		}
 
@@ -261,13 +283,13 @@ public class TSPAlgorithm {
 
 	}
 
-	public ArrayList<TSPRoute> performOrderOneCrossover2(TSPRoute parent1, TSPRoute parent2, boolean singleChildOnly)
+	public ArrayList<TSPRoute> performOrderOneCrossover(TSPRoute parent1, TSPRoute parent2, boolean singleChildOnly)
 			throws Exception {
 
 		Random random = new Random();
 
 		ArrayList<TSPRoute> routes = new ArrayList<>();
-		
+
 		if (random.nextDouble() <= this.crossoverRate) {
 
 			if (parent1.getSize() == parent2.getSize()) {
@@ -306,8 +328,8 @@ public class TSPAlgorithm {
 
 					int currentIndex = (crossoverSelectionEndIndex + i) % parent2.getSize();
 
-					TSPLocation currentGene1 = (TSPLocation) parent2.getRouteLocations().get(currentIndex);
-					TSPLocation currentGene2 = (TSPLocation) parent1.getRouteLocations().get(currentIndex);
+					TSPLocation currentGene1 = parent2.getRouteLocations().get(currentIndex);
+					TSPLocation currentGene2 = parent1.getRouteLocations().get(currentIndex);
 
 					if (!child1Chromosome.contains(currentGene1)) {
 						child1Chromosome.add(currentGene1);
@@ -334,7 +356,7 @@ public class TSPAlgorithm {
 			}
 
 		} else {
-			
+
 			// If we get to this point, we have determined that we shouldn't be performing crossover on this iteration.
 			// Therefore, simply return the two original parents unchanged.
 			routes.add(parent1);
@@ -344,187 +366,96 @@ public class TSPAlgorithm {
 
 		return routes;
 	}
-	
+
 	public ArrayList<TSPRoute> performCycleCrossover(TSPRoute parent1, TSPRoute parent2) throws Exception {
-		
+
 		if (parent1.getSize() == parent2.getSize()) {
-			
-			int AlleleCount = parent1.getRouteSize();
-			
-			boolean[] flags = new boolean[AlleleCount];
-			
-			Double_Index_Value_Pair TempPair = new Double_Index_Value_Pair();
-			
-			// Generate a hashtable for parent 2's index.
-			Hashtable HT1 = new Hashtable();
-			for (int i = 0; i < AlleleCount; i++) {
-				
-				TempPair = new Double_Index_Value_Pair();
-				TempPair.value2 = parent2.getLocationAtPosition(i);
-				TempPair.index2 = i;
-				TempPair.value1 = parent1.getLocationAtPosition(i);
-				HT1.put(parent2.getLocationAtPosition(i), TempPair);
-				
+
+			boolean[] flags = new boolean[parent1.getSize()];
+
+			CycleCrossoverItem<TSPLocation> currentCycleItem = new CycleCrossoverItem<TSPLocation>();
+
+			// 1. Generate a hashtable for parent 1's index.
+			Hashtable<TSPLocation, CycleCrossoverItem<TSPLocation>> parent1Lookup = new Hashtable();
+
+			for (int i = 0; i < parent1.getSize(); i++) {
+
+				currentCycleItem = new CycleCrossoverItem<TSPLocation>(i, parent1.getLocationAtPosition(i), parent2.getLocationAtPosition(i));
+				parent1Lookup.put(parent1.getLocationAtPosition(i), currentCycleItem);
+
 			}
-			
-			ArrayList<ArrayList <Double_Index_Value_Pair>> cycles = new ArrayList<>();
-			
+
+			// 2. Generate the cycles.
+
+			ArrayList<ArrayList <CycleCrossoverItem<TSPLocation>>> cycles = new ArrayList<>();
+
 			int cycleStart = 0;
-			
-			for (int i = 0; i < AlleleCount; i++) {
-				
-				ArrayList<Double_Index_Value_Pair> tempCycle = new ArrayList<>();
-				
+
+			for (int i = 0; i < parent1.getSize(); i++) {
+
+				ArrayList<CycleCrossoverItem<TSPLocation>> tempCycle = new ArrayList<>();
+
 				if (!flags[i]) {
-					
+
 					cycleStart = i;
-					
-					TempPair = (Double_Index_Value_Pair) HT1.get(parent1.getLocationAtPosition(i));
-					tempCycle.add(TempPair);
-					
-					flags[TempPair.index2] = true;
-					
-					while(TempPair.index2 != cycleStart) {
-						
-						TempPair = (Double_Index_Value_Pair) HT1.get(parent1.getLocationAtPosition(TempPair.index2));
-						tempCycle.add(TempPair);
-						flags[TempPair.index2] = true;
-						
+
+					// Look for the VALUE of the current element from Parent 2 inside Parent 1 via the hashtable lookup.
+					currentCycleItem = (CycleCrossoverItem<TSPLocation>) parent1Lookup.get(parent2.getLocationAtPosition(i));
+
+					// Add this to the array of values for this particular cycle, and make sure that we cannot add it to a future cycle.
+					tempCycle.add(currentCycleItem);
+					flags[currentCycleItem.parent1Index] = true;
+
+					// The current cycle should continue UNTIL we return back to the ORIGINAL INDEX that the cycle started at.
+					while(currentCycleItem.parent1Index != cycleStart) {
+
+						// Follow the cycle along to the next element by finding the VALUE of the next element in the chain from Parent 2 inside Parent 1.
+						TSPLocation parent2ElementFromParent1Index = parent2.getLocationAtPosition(currentCycleItem.parent1Index);
+
+						// Locate the element with the same value from Parent 2 in Parent 2 (follow the cycle chain..)
+						currentCycleItem = (CycleCrossoverItem<TSPLocation>) parent1Lookup.get(parent2ElementFromParent1Index);
+
+						// Add this to the array of values for this particular cycle, and make sure that we cannot add it to a future cycle.
+						tempCycle.add(currentCycleItem);
+						flags[currentCycleItem.parent1Index] = true;
+
 					}
-					
+
 					cycles.add(tempCycle);
 				}
-				
+
 			}
-			
+
 			// 3. Copy alternate cycles to children
-			
-			TSPRoute child1 = new TSPRoute();
-			TSPRoute child2 = new TSPRoute();
-			
+
+			TSPLocation[] child1 = new TSPLocation[parent1.getSize()];
+			TSPLocation[] child2 = new TSPLocation[parent1.getSize()];
+
 			int counter = 0;
-			
-			for(ArrayList<Double_Index_Value_Pair> c : cycles) {
-				
-				for (Double_Index_Value_Pair tempPair : c) {
-					
-					if (counter % 2 == 0) {
-						
-						child1.setLocationAtPosition(tempPair.index2, tempPair.value1);
-						child2.setLocationAtPosition(tempPair.index2, tempPair.value2);
-						
-					} else {
-						
-						child1.setLocationAtPosition(tempPair.index2, tempPair.value2);
-						child2.setLocationAtPosition(tempPair.index2, tempPair.value1);
-						
-					}
+
+			for(ArrayList<CycleCrossoverItem<TSPLocation>> c : cycles) {
+
+				for (CycleCrossoverItem<TSPLocation> tempPair : c) {
+
+					child1[tempPair.parent1Index] = (counter % 2 == 0) ? (TSPLocation) tempPair.parent1Value : (TSPLocation) tempPair.parent2Value;
+					child2[tempPair.parent1Index] = (counter % 2 == 0) ? (TSPLocation) tempPair.parent2Value : (TSPLocation) tempPair.parent1Value;
+
 				}
-				
+
 				counter++;
 			}
-			
-			
+
+
 			ArrayList<TSPRoute> children = new ArrayList<>();
-			children.add(child2);
-			children.add(child1);
-			
-			
+
+			children.add(new TSPRoute(child1));
+			children.add(new TSPRoute(child2));
+
 			return children;
-			
-		}
-		
-		throw new Exception("oh dear");
-
-	}
-	
-	public class Double_Index_Value_Pair {
-		
-		private TSPLocation value2;
-		
-		public TSPLocation getValue2() {
-			return value2;
-		}
-
-		public void setValue2(TSPLocation value2) {
-			this.value2 = value2;
-		}
-
-		public int getIndex2() {
-			return index2;
-		}
-
-		public void setIndex2(int index2) {
-			this.index2 = index2;
-		}
-
-		public TSPLocation getValue1() {
-			return value1;
-		}
-
-		public void setValue1(TSPLocation value1) {
-			this.value1 = value1;
-		}
-
-		private int index2;
-		private TSPLocation value1;
-		
-		public Double_Index_Value_Pair() {
-			
-		}
-	}
-
-	public ArrayList<TSPLocation> performOrderOneCrossover(TSPRoute parent1, TSPRoute parent2) throws Exception {
-
-		Random random = new Random();
-
-		if (parent1.getSize() == parent2.getSize()) {
-
-			// ArrayList<GAGene> child = new ArrayList<GAGene>(Arrays.asList(new
-			// GAGene[parent1.getSize()]));
-
-			ArrayList<TSPLocation> childChromosome = new ArrayList<TSPLocation>();
-
-			int randomSelectionIndex1 = random.nextInt(parent1.getSize());
-			int randomSelectionIndex2 = random.nextInt(parent1.getSize());
-
-			// Make sure both random indexes are not the same
-			// (at the same time we also ensure that the largest possible index
-			// cannot be used as the start index - Will always be larger than
-			// the other randomly selected value.)
-			// Could also achieve this by using the code here:
-			// http://stackoverflow.com/a/11784059
-			while (randomSelectionIndex1 == randomSelectionIndex2) {
-				randomSelectionIndex2 = random.nextInt(parent1.getSize());
-			}
-
-			int crossoverSelectionStartIndex = Math.min(randomSelectionIndex1, randomSelectionIndex2);
-			int crossoverSelectionEndIndex = Math.max(randomSelectionIndex1, randomSelectionIndex2);
-
-			ArrayList<TSPLocation> parent1SubCollection = new ArrayList<TSPLocation>(
-					parent1.getRouteLocations().subList(crossoverSelectionStartIndex, crossoverSelectionEndIndex));
-
-			childChromosome.addAll(parent1SubCollection);
-
-			for (int i = 0; i < parent2.getSize(); i++) {
-
-				int currentIndex = (crossoverSelectionEndIndex + i) % parent2.getSize();
-
-				TSPLocation currentGene = (TSPLocation) parent2.getRouteLocations().get(currentIndex);
-
-				if (!childChromosome.contains(currentGene)) {
-					childChromosome.add(currentGene);
-				}
-
-			}
-
-			Collections.rotate(childChromosome, crossoverSelectionStartIndex);
-
-			return childChromosome;
 
 		}
 
-		throw new Exception("Size mismatch between parent chromosomes.");
+		throw new Exception("Parent 1 and Parent 2 sizes do not match. Aborting cycle crossover.");
 
 	}
 
@@ -541,7 +472,7 @@ public class TSPAlgorithm {
 
 			int swapIndex1 = random.nextInt(chromosome.getSize());
 			int swapIndex2 = random.nextInt(chromosome.getSize());
-			
+
 			// Make sure the random indexes are not the same.
 			while(swapIndex1 == swapIndex2) {
 				swapIndex2 = random.nextInt(chromosome.getSize());
@@ -555,6 +486,49 @@ public class TSPAlgorithm {
 
 		}
 
+	}
+
+	public class CycleCrossoverItem<T extends GAGene>  {
+
+		private GAGene parent1Value;
+		private GAGene parent2Value;
+		private int parent1Index;
+
+		public CycleCrossoverItem() {
+
+		}
+
+		public CycleCrossoverItem(int parent1Index, GAGene parent1Value, GAGene parent2Value) {
+
+			this.parent1Index = parent1Index;
+			this.parent1Value = parent1Value;
+			this.parent2Value = parent2Value;
+
+		}
+
+		public GAGene getParent1Value() {
+			return parent1Value;
+		}
+
+		public void setParent1Value(GAGene parent1Value) {
+			this.parent1Value = parent1Value;
+		}
+
+		public GAGene getParent2Value() {
+			return parent2Value;
+		}
+
+		public void setParent2Value(GAGene parent2Value) {
+			this.parent2Value = parent2Value;
+		}
+
+		public int getParent1Index() {
+			return parent1Index;
+		}
+
+		public void setParent1Index(int parent1Index) {
+			this.parent1Index = parent1Index;
+		}
 	}
 
 }

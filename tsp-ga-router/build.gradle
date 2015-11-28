@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-	compile 'de.erichseifert.gral:gral-core:0.10'
+	compile 'de.erichseifert.gral:gral-core:0.10', 'org.apache.commons:commons-lang3:3.4'
 }
 
 mainClassName = 'uk.ac.aber.clg11.tsp.TSP'

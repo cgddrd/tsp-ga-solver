@@ -43,5 +43,7 @@ public abstract class GAPopulation<T extends Number, K extends GAGene, S extends
 	}
 	
 	public abstract T getPopulationFitnessSum();
+	public abstract T getPopulationFitnessAverage();
+	public abstract T getPopulationFitnessMax();
 	
 }
