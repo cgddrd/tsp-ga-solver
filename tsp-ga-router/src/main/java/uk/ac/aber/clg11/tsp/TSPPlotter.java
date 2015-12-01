@@ -229,6 +229,8 @@ public class TSPPlotter extends JFrame {
 			data.add(loc.xCoord, loc.yCoord);
 
 		}
+		
+		data.add(locations.get(0).xCoord, locations.get(0).yCoord);
 
 	}
 	

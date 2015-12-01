@@ -86,7 +86,7 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	private double calcStraightLineDistance(TSPLocation startLocation, TSPLocation endLocation) {
 		
 		int xDistance = Math.abs(startLocation.getxCoord() - endLocation.getxCoord());
-        int yDistance = Math.abs(startLocation.getyCoord() - endLocation.getxCoord());
+        int yDistance = Math.abs(startLocation.getyCoord() - endLocation.getyCoord());
         
         double distance = Math.sqrt( (xDistance*xDistance) + (yDistance*yDistance) );
         

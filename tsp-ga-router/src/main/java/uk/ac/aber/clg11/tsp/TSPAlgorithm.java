@@ -193,25 +193,14 @@ public class TSPAlgorithm {
 
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
-
-		this.useElitism = false;
-
-		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
-		if (this.useElitism) {
-
-			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-
-			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
-
-			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-
-		}
+		
+		int popSize = this.useElitism ? (currentPopulation.getPopulationSize() - 2) : currentPopulation.getPopulationSize();
 
 		// Prepare for SUS selection.
 		ArrayList<TSPRoute> stochasticSelectedRoutes = null;
 		int selectionIncrement = 0;
 
-		while (newPopulation.getPopulationSize() < currentPopulation.getPopulationSize()) {
+		while (newPopulation.getPopulationSize() < popSize) {
 
 			TSPRoute parent1 = null;
 			TSPRoute parent2 = null;
@@ -277,6 +266,17 @@ public class TSPAlgorithm {
 
 		for (int i = 0; i < newPopulation.getPopulationSize(); i++) {
 			this.performSwapMutation(newPopulation.getRouteAtIndex(i));
+		}
+		
+		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
+		if (this.useElitism) {
+
+			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
+
+			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
+
+			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
+
 		}
 
 		return newPopulation;
@@ -468,25 +468,44 @@ public class TSPAlgorithm {
 
 		Random random = new Random();
 
-		if (random.nextDouble() <= this.mutationRate) {
+//		if (random.nextDouble() <= this.mutationRate) {
+//
+//			int swapIndex1 = random.nextInt(chromosome.getSize());
+//			int swapIndex2 = random.nextInt(chromosome.getSize());
+//
+//			// Make sure the random indexes are not the same.
+//			while(swapIndex1 == swapIndex2) {
+//				swapIndex2 = random.nextInt(chromosome.getSize());
+//			}
+//
+//			TSPLocation test1 = chromosome.getRouteLocations().get(swapIndex1);
+//			TSPLocation test2 = chromosome.getRouteLocations().get(swapIndex2);
+//
+//			chromosome.getRouteLocations().set(swapIndex1, test2);
+//			chromosome.getRouteLocations().set(swapIndex2, test1);
+//
+//		}
+		
+		// Loop through tour cities
+        for(int tourPos1=0; tourPos1 < chromosome.getRouteSize(); tourPos1++){
+            // Apply mutation rate
+            if(Math.random() < this.mutationRate){
+                // Get a second random position in the tour
+                int tourPos2 = (int) (chromosome.getRouteSize() * Math.random());
 
-			int swapIndex1 = random.nextInt(chromosome.getSize());
-			int swapIndex2 = random.nextInt(chromosome.getSize());
+                // Get the cities at target position in tour
+                TSPLocation city1 = chromosome.getLocationAtPosition(tourPos1);
+                TSPLocation city2 = chromosome.getLocationAtPosition(tourPos2);
 
-			// Make sure the random indexes are not the same.
-			while(swapIndex1 == swapIndex2) {
-				swapIndex2 = random.nextInt(chromosome.getSize());
-			}
-
-			TSPLocation test1 = chromosome.getRouteLocations().get(swapIndex1);
-			TSPLocation test2 = chromosome.getRouteLocations().get(swapIndex2);
-
-			chromosome.getRouteLocations().set(swapIndex1, test2);
-			chromosome.getRouteLocations().set(swapIndex2, test1);
-
-		}
+                chromosome.setLocationAtPosition(tourPos2, city1);
+                chromosome.setLocationAtPosition(tourPos1, city2);
+                // Swap them around
+             
+            }
+        }
 
 	}
+	
 
 	public class CycleCrossoverItem<T extends GAGene>  {
 

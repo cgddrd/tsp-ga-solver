@@ -74,6 +74,9 @@ public class TSP {
 
 		TSPPopulation population = new TSPPopulation(experimentSettings.getPopulationSettings().getPopulationSize(),
 				true, locations);
+		
+		TSPRoute fittest = (TSPRoute) population.getFittestCandidate();
+		System.out.println("Initial Distance: " + fittest.getRouteDistance());
 
 		// Plot the initial best TSP solution.
 		plotter.updateData(population.getFittestCandidate().getGenes());
@@ -103,6 +106,9 @@ public class TSP {
 			experimentSettings.getExperimentResults().updateBestDistance(test.getRouteDistance());
 
 		}
+		
+		fittest = (TSPRoute) population.getFittestCandidate();
+		System.out.println("Final Distance: " + fittest.getRouteDistance());
 		
 		stopWatch.stop();
 		
