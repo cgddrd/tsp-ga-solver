@@ -15,7 +15,7 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		super(populationChromosomes);
 	}
 
-	public TSPPopulation(int populationSize, boolean shouldInit, ArrayList<TSPLocation> genes) {
+	public TSPPopulation(int populationSize, ArrayList<TSPLocation> genes, boolean shouldInit) {
 		
 		this.chromosomeCandidates = new ArrayList<TSPRoute>(populationSize);
 		
@@ -49,40 +49,33 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	}
 
 	@Override
-	public GAChromosome<Double, TSPLocation> getFittestCandidate() {
+	public TSPRoute getFittestCandidate() {
 		
 		// We need to make sure that we reset the current fittest to null, to prevent an out-of-date fittest candidate.
-		this.currentFittestCandidate = null;
+		TSPRoute currentFittestCandidate = this.getRouteAtIndex(0);
 		
-		for (TSPRoute currentCandidate : this.chromosomeCandidates) {
+		for (int i = 1; i< this.getPopulationSize(); i++) {
 			
-			// REMEMBER: The fitness function for a TSPRoute gets LARGER when the total distance gets SMALLER.
-			if (this.currentFittestCandidate == null || currentCandidate.getFitness() >= currentFittestCandidate.getFitness()) {
+			if (currentFittestCandidate.getRouteDistance() > this.getRouteAtIndex(i).getRouteDistance()) {
 				
-				this.currentFittestCandidate = currentCandidate;
-				
+				currentFittestCandidate = this.getRouteAtIndex(i);
 			}
 		}
 		
-		return this.currentFittestCandidate;
+		return currentFittestCandidate;
 		
 	}
 
 	@Override
 	public Double getPopulationFitnessSum() {
+			
+		Double fitnessSum = 0.0;
 		
-		if (this.populationFitness == null) {
-			
-			Double fitnessSum = 0.0;
-			
-			for (TSPRoute current : this.chromosomeCandidates) {
-				fitnessSum += current.getFitness();
-			}
-			
-			this.populationFitness = fitnessSum;
+		for (TSPRoute current : this.chromosomeCandidates) {
+			fitnessSum += current.getFitness();
 		}
 		
-		return this.populationFitness;
+		return fitnessSum;
 		
 	}
 

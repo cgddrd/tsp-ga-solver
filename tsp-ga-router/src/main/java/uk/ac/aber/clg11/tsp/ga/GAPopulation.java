@@ -5,8 +5,6 @@ import java.util.ArrayList;
 public abstract class GAPopulation<T extends Number, K extends GAGene, S extends GAChromosome> implements IGAPopulation<T, K> {
 	
 	protected ArrayList<S> chromosomeCandidates;
-	protected S currentFittestCandidate = null;
-	protected T populationFitness = null;
 	
 	public GAPopulation() {}
 	

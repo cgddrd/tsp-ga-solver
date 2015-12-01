@@ -19,10 +19,10 @@ public class TSPLocation extends GAGene {
 	public int getyCoord() {
 		return yCoord;
 	}
-
+	
 	@Override
-	public String toString() {
-		return "TSPLocation [xCoord = " + xCoord + ", yCoord = " + yCoord + "]";
-	}
+    public String toString(){
+        return getxCoord()+", "+getyCoord();
+    }
 	
 }

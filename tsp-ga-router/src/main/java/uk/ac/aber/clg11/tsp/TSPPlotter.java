@@ -229,6 +229,9 @@ public class TSPPlotter extends JFrame {
 			data.add(loc.xCoord, loc.yCoord);
 
 		}
+		
+		// Add the beginning node back to the end so we go back to the beginning.
+		data.add(locations.get(0).xCoord, locations.get(0).yCoord);
 
 	}
 	

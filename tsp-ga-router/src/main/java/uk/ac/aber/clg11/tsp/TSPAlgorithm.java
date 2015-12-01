@@ -164,8 +164,6 @@ public class TSPAlgorithm {
 
 	public TSPRoute performRouletteWheelSelection(TSPPopulation currentPopulation) throws Exception {
 
-		Random random = new Random();
-
 		double populationFitnessSum = currentPopulation.getPopulationFitnessSum();
 
 		double randomPoint = ThreadLocalRandom.current().nextDouble(populationFitnessSum);
@@ -194,24 +192,26 @@ public class TSPAlgorithm {
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
 
-		this.useElitism = false;
-
-		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
-		if (this.useElitism) {
-
-			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-
-			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
-
-			newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
-
-		}
-
 		// Prepare for SUS selection.
 		ArrayList<TSPRoute> stochasticSelectedRoutes = null;
+		ArrayList<TSPRoute> tournamentSelectedRoutes = null;
 		int selectionIncrement = 0;
 
-		while (newPopulation.getPopulationSize() < currentPopulation.getPopulationSize()) {
+		Random random = new Random();
+
+		//int targetPopSize = this.useElitism ? (currentPopulation.getPopulationSize() - 2) : currentPopulation.getPopulationSize();
+		
+		int elitismOffset = this.useElitism ? 1 : 0;
+		
+		this.useSingleChild = true;
+		
+		//while (newPopulation.getPopulationSize() < targetPopSize) {
+		
+		if (this.useElitism) {
+			newPopulation.addRoute(currentPopulation.getFittestCandidate());
+		}
+		
+		for (int i = elitismOffset; i < currentPopulation.getPopulationSize(); i++) {
 
 			TSPRoute parent1 = null;
 			TSPRoute parent2 = null;
@@ -220,11 +220,12 @@ public class TSPAlgorithm {
 
 			case "tournament":
 			case "ts":
-
+				
+				//System.out.println("tournament selection");
+				
 				if (this.tournamentSize < 1) {
 					tournamentSize = 50;
 					System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
-					//throw new Exception("Tournament selection active, but tournament size is < 1. Aborting.");
 				}
 
 				parent1 = this.performTournamentSelection(currentPopulation);
@@ -255,33 +256,89 @@ public class TSPAlgorithm {
 				throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
 
 			}
-			
-			switch (this.crossoverMethodType) {
-			
-			case "ordered":
-			case "orderone":
-			case "order-one":
-			case "ox1":
-				newPopulation.addRoutes(this.performOrderOneCrossover(parent1, parent2, this.useSingleChild));
-				break;
-				
-			case "cycle":
-			case "cyclecrossover":
-				newPopulation.addRoutes(this.performCycleCrossover(parent1, parent2));
-				break;
-			default:
-				throw new Exception("Specified crossover method '" + this.crossoverMethodType + "' not valid. Unable to perform GA crossover. Aborting.");
-			}
+
+
+				switch (this.crossoverMethodType) {
+
+				case "ordered":
+				case "orderone":
+				case "order-one":
+				case "ox1":
+					//newPopulation.addRoutes(this.performOrderOneCrossover(parent1, parent2, this.useSingleChild));
+					
+					newPopulation.addRoute(this.crossover(parent1, parent2));
+					break;
+
+				case "cycle":
+				case "cyclecrossover":
+					newPopulation.addRoutes(this.performCycleCrossover(parent1, parent2));
+					break;
+				default:
+					throw new Exception("Specified crossover method '" + this.crossoverMethodType + "' not valid. Unable to perform GA crossover. Aborting.");
+				}
+
 
 		}
 
 		for (int i = 0; i < newPopulation.getPopulationSize(); i++) {
+
 			this.performSwapMutation(newPopulation.getRouteAtIndex(i));
+
 		}
+
+		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
+//		if (this.useElitism) {
+//
+//			newPopulation.addRoute((TSPRoute) currentPopulation.getFittestCandidate());
+//
+//			tempPopulation.removeChromosome(tempPopulation.getFittestCandidate());
+//
+//		    newPopulation.addRoute((TSPRoute) tempPopulation.getFittestCandidate());
+//
+//		}
 
 		return newPopulation;
 
 	}
+	
+	// Applies crossover to a set of parents and creates offspring
+    public TSPRoute crossover(TSPRoute parent1, TSPRoute parent2) {
+        // Create new child tour
+        TSPRoute child = new TSPRoute(parent1.getRouteSize());
+
+        // Get start and end sub tour positions for parent1's tour
+        int startPos = (int) (Math.random() * parent1.getRouteSize());
+        int endPos = (int) (Math.random() * parent1.getRouteSize());
+
+        // Loop and add the sub tour from parent1 to our child
+        for (int i = 0; i < parent1.getRouteSize(); i++) {
+            // If our start position is less than the end position
+            if (startPos < endPos && i > startPos && i < endPos) {
+                child.setLocationAtPosition(i, parent1.getLocationAtPosition(i));
+            } // If our start position is larger
+            else if (startPos > endPos) {
+                if (!(i < startPos && i > endPos)) {
+                	child.setLocationAtPosition(i, parent1.getLocationAtPosition(i));
+                }
+            }
+        }
+
+        // Loop through parent2's city tour
+        for (int i = 0; i < parent2.getRouteSize(); i++) {
+            // If child doesn't have the city add it
+            if (!child.containsLocation(parent2.getLocationAtPosition(i))) {
+                // Loop to find a spare position in the child's tour
+                for (int ii = 0; ii < child.getRouteSize(); ii++) {
+                    // Spare position found, add city
+                    if (child.getLocationAtPosition(ii) == null) {
+                        child.setLocationAtPosition(ii, parent2.getLocationAtPosition(i));
+                        break;
+                    }
+                }
+            }
+        }
+        return child;
+    }
 
 	public ArrayList<TSPRoute> performOrderOneCrossover(TSPRoute parent1, TSPRoute parent2, boolean singleChildOnly)
 			throws Exception {
@@ -290,78 +347,67 @@ public class TSPAlgorithm {
 
 		ArrayList<TSPRoute> routes = new ArrayList<>();
 
-		if (random.nextDouble() <= this.crossoverRate) {
+		if (parent1.getSize() == parent2.getSize()) {
 
-			if (parent1.getSize() == parent2.getSize()) {
+			ArrayList<TSPLocation> child1Chromosome = new ArrayList<TSPLocation>();
+			ArrayList<TSPLocation> child2Chromosome = new ArrayList<TSPLocation>();
 
-				ArrayList<TSPLocation> child1Chromosome = new ArrayList<TSPLocation>();
-				ArrayList<TSPLocation> child2Chromosome = new ArrayList<TSPLocation>();
+			int randomSelectionIndex1 = random.nextInt(parent1.getSize());
+			int randomSelectionIndex2 = random.nextInt(parent1.getSize());
 
-				int randomSelectionIndex1 = random.nextInt(parent1.getSize());
-				int randomSelectionIndex2 = random.nextInt(parent1.getSize());
+			// Make sure both random indexes are not the same
+			// (at the same time we also ensure that the largest possible
+			// index
+			// cannot be used as the start index - Will always be larger
+			// than
+			// the other ransdomly selected value.)
+			// Could also achieve this by using the code here:
+			// http://stackoverflow.com/a/11784059
+			while (randomSelectionIndex1 == randomSelectionIndex2) {
+				randomSelectionIndex2 = random.nextInt(parent1.getSize());
+			}
 
-				// Make sure both random indexes are not the same
-				// (at the same time we also ensure that the largest possible
-				// index
-				// cannot be used as the start index - Will always be larger
-				// than
-				// the other ransdomly selected value.)
-				// Could also achieve this by using the code here:
-				// http://stackoverflow.com/a/11784059
-				while (randomSelectionIndex1 == randomSelectionIndex2) {
-					randomSelectionIndex2 = random.nextInt(parent1.getSize());
+			int crossoverSelectionStartIndex = Math.min(randomSelectionIndex1, randomSelectionIndex2);
+			int crossoverSelectionEndIndex = Math.max(randomSelectionIndex1, randomSelectionIndex2);
+
+			ArrayList<TSPLocation> parent1SubCollection = new ArrayList<TSPLocation>(
+					parent1.getRouteLocations().subList(crossoverSelectionStartIndex, crossoverSelectionEndIndex));
+
+			ArrayList<TSPLocation> parent2SubCollection = new ArrayList<TSPLocation>(
+					parent2.getRouteLocations().subList(crossoverSelectionStartIndex, crossoverSelectionEndIndex));
+
+			child1Chromosome.addAll(parent1SubCollection);
+			child2Chromosome.addAll(parent2SubCollection);
+
+			for (int i = 0; i < parent2.getSize(); i++) {
+
+				int currentIndex = (crossoverSelectionEndIndex + i) % parent2.getSize();
+
+				TSPLocation currentGene1 = parent2.getRouteLocations().get(currentIndex);
+				TSPLocation currentGene2 = parent1.getRouteLocations().get(currentIndex);
+
+				if (!child1Chromosome.contains(currentGene1)) {
+					child1Chromosome.add(currentGene1);
 				}
 
-				int crossoverSelectionStartIndex = Math.min(randomSelectionIndex1, randomSelectionIndex2);
-				int crossoverSelectionEndIndex = Math.max(randomSelectionIndex1, randomSelectionIndex2);
-
-				ArrayList<TSPLocation> parent1SubCollection = new ArrayList<TSPLocation>(
-						parent1.getRouteLocations().subList(crossoverSelectionStartIndex, crossoverSelectionEndIndex));
-
-				ArrayList<TSPLocation> parent2SubCollection = new ArrayList<TSPLocation>(
-						parent2.getRouteLocations().subList(crossoverSelectionStartIndex, crossoverSelectionEndIndex));
-
-				child1Chromosome.addAll(parent1SubCollection);
-				child2Chromosome.addAll(parent2SubCollection);
-
-				for (int i = 0; i < parent2.getSize(); i++) {
-
-					int currentIndex = (crossoverSelectionEndIndex + i) % parent2.getSize();
-
-					TSPLocation currentGene1 = parent2.getRouteLocations().get(currentIndex);
-					TSPLocation currentGene2 = parent1.getRouteLocations().get(currentIndex);
-
-					if (!child1Chromosome.contains(currentGene1)) {
-						child1Chromosome.add(currentGene1);
-					}
-
-					if (!child2Chromosome.contains(currentGene2)) {
-						child2Chromosome.add(currentGene2);
-					}
-
+				if (!child2Chromosome.contains(currentGene2)) {
+					child2Chromosome.add(currentGene2);
 				}
 
-				Collections.rotate(child1Chromosome, crossoverSelectionStartIndex);
-				Collections.rotate(child2Chromosome, crossoverSelectionStartIndex);
+			}
 
-				routes.add(new TSPRoute(child1Chromosome));
+			Collections.rotate(child1Chromosome, crossoverSelectionStartIndex);
+			Collections.rotate(child2Chromosome, crossoverSelectionStartIndex);
 
-				if (!singleChildOnly) {
-					routes.add(new TSPRoute(child2Chromosome));
-				}
+			routes.add(new TSPRoute(child1Chromosome));
 
-			} else {
-				// If the sizes of both parents do not match, then we have a problem.
-				throw new Exception("Size mismatch between parent chromosomes.");
+			if (!singleChildOnly) {
+				routes.add(new TSPRoute(child2Chromosome));
 			}
 
 		} else {
-
-			// If we get to this point, we have determined that we shouldn't be performing crossover on this iteration.
-			// Therefore, simply return the two original parents unchanged.
-			routes.add(parent1);
-			routes.add(parent2);
-
+			// If the sizes of both parents do not match, then we have a problem.
+			throw new Exception("Size mismatch between parent chromosomes.");
 		}
 
 		return routes;
@@ -467,23 +513,27 @@ public class TSPAlgorithm {
 		// We use a swap mutation for PERUMUTATION REPRESENTATIONS.
 
 		Random random = new Random();
+		
+		for (int i = 0; i < chromosome.getRouteSize(); i++) {
+			
+			if (random.nextDouble() < this.mutationRate) {
+				
+				//int swapIndex1 = random.nextInt(chromosome.getSize());
+				int swapIndex2 = random.nextInt(chromosome.getSize());
 
-		if (random.nextDouble() <= this.mutationRate) {
+				// Make sure the random indexes are not the same.
+				while(i == swapIndex2) {
+					swapIndex2 = random.nextInt(chromosome.getSize());
+				}
 
-			int swapIndex1 = random.nextInt(chromosome.getSize());
-			int swapIndex2 = random.nextInt(chromosome.getSize());
+				TSPLocation test1 = chromosome.getLocationAtPosition(i);
+				TSPLocation test2 = chromosome.getLocationAtPosition(swapIndex2);
 
-			// Make sure the random indexes are not the same.
-			while(swapIndex1 == swapIndex2) {
-				swapIndex2 = random.nextInt(chromosome.getSize());
+				chromosome.setLocationAtPosition(i, test2);
+				chromosome.setLocationAtPosition(swapIndex2, test1);
 			}
-
-			TSPLocation test1 = chromosome.getRouteLocations().get(swapIndex1);
-			TSPLocation test2 = chromosome.getRouteLocations().get(swapIndex2);
-
-			chromosome.getRouteLocations().set(swapIndex1, test2);
-			chromosome.getRouteLocations().set(swapIndex2, test1);
-
+			
+			
 		}
 
 	}

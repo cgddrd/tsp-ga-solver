@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public abstract class GAChromosome<T extends Number, K extends GAGene> implements IGAChromosome<T> {	
 	
 	protected ArrayList<K> genes;
-	protected double currentFitness = 0;
+	//protected double currentFitness = 0;
 	
 	public GAChromosome() {
 		this.genes = new ArrayList<K>();
@@ -54,7 +54,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 	}
 	
 	protected void resetFitness() {
-		this.currentFitness = 0;
+		//this.currentFitness = 0;
 	}
 	
 	public abstract T getFitness();
