@@ -9,39 +9,49 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class GAChromosome<T extends Number, K extends GAGene> implements IGAChromosome<T> {	
 	
-	protected ArrayList<K> genes;
+	protected ArrayList<K> genes = new ArrayList<K>();
 	//protected double currentFitness = 0;
 	
 	public GAChromosome() {
 		this.genes = new ArrayList<K>();
 	}
 	
-	public GAChromosome(K[] genes) {
-		this.setGenes(new ArrayList<K>(Arrays.asList(genes)), false);
+	//public GAChromosome(K[] genes) {
+	//	this.setGenes(new ArrayList<K>(Arrays.asList(genes)), false);
+	//}
+	
+	public GAChromosome(ArrayList<K> newGenes) {
+		this.setGenes(newGenes, false);
 	}
 	
-	public GAChromosome(ArrayList<K> genes) {
-		this.setGenes(genes, false);
-	}
-	
-	public GAChromosome(ArrayList<K> genes, boolean shouldRandomise) {
-		this.setGenes(genes, shouldRandomise);
+	public GAChromosome(ArrayList<K> newGenes, boolean shouldRandomise) {
+		
+		for (int i = 0; i < newGenes.size(); i++) {
+			this.genes.add(null);
+		}
+		
+		this.setGenes(newGenes, shouldRandomise);
 	}
 	
 	private void shuffleGenes() {
 		
 		// Create new seed then shuffle collection - http://stackoverflow.com/a/4229001
-		long seed = System.nanoTime();
-		Collections.shuffle(this.genes, new Random(seed));
+		Collections.shuffle(this.genes);
 		
 	}
 	
-	protected void setGenes(ArrayList<K> genes, boolean shouldRandomise) {
+	protected void setGenes(ArrayList<K> newGenes, boolean shouldRandomise) {
 		
-		this.genes = new ArrayList<K>(genes);
+		for (int i = 0; i < newGenes.size(); i++) {
+			
+			this.genes.set(i, newGenes.get(i));
+			
+		}
 		
 		if (shouldRandomise) {
-			this.shuffleGenes();
+			//this.shuffleGenes();
+			
+			Collections.shuffle(this.genes);
 		}
 	}
 	
@@ -50,7 +60,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 	}
 	
 	public int getSize() {
-		return genes.size();
+		return this.genes.size();
 	}
 	
 	protected void resetFitness() {

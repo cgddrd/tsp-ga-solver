@@ -7,17 +7,25 @@ import uk.ac.aber.clg11.tsp.ga.GAPopulation;
 
 public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	
-	public TSPPopulation(int populationSize) {
-		super(populationSize);
-	}
+	//public TSPPopulation(int populationSize) {
+	//	super(populationSize);
+	//}
 	
-	public TSPPopulation(ArrayList<TSPRoute> populationChromosomes) {
-		super(populationChromosomes);
+	//public TSPPopulation(ArrayList<TSPRoute> populationChromosomes) {
+	//	super(populationChromosomes);
+	//}
+	
+	public TSPPopulation(int populationSize) {
+		
+		this.chromosomeCandidates = new TSPRoute[populationSize];
+		
 	}
 
 	public TSPPopulation(int populationSize, ArrayList<TSPLocation> genes, boolean shouldInit) {
 		
-		this.chromosomeCandidates = new ArrayList<TSPRoute>(populationSize);
+		//this.chromosomeCandidates = new ArrayList<TSPRoute>(populationSize);
+		
+		this.chromosomeCandidates = new TSPRoute[populationSize];
 		
 		if (shouldInit) {
 			
@@ -25,23 +33,31 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 			for (int i = 0; i < populationSize; i++) {
 				
 				// Setting true on the constructor for TSPRoute makes sure the genes that make up the chromosome are shuffled.
-				this.addRoute(new TSPRoute(genes, true));
+				//this.addRoute(new TSPRoute(genes, true));
+				
+				TSPRoute route = new TSPRoute(genes, true);
+				
+				this.addChromosomeAtIndex(route, i);
 			
 			}
 		}
 		
 	}
 	
-	public ArrayList<TSPRoute> getRoutes() {
-		return this.chromosomeCandidates;
-	}
+	//public ArrayList<TSPRoute> getRoutes() {
+	//	return this.chromosomeCandidates;
+	//}
 	
-	public void addRoute(TSPRoute newRoute) {
-		this.addChromosome(newRoute);
-	}
+	//public void addRoute(TSPRoute newRoute) {
+		//this.addChromosome(newRoute);
+	//}
 	
-	public void addRoutes(ArrayList<TSPRoute> newRoutes) {
-		this.addChromosomes(newRoutes);
+	//public void addRoutes(ArrayList<TSPRoute> newRoutes) {
+	//	this.addChromosomes(newRoutes);
+	//}
+	
+	public void addRouteAtIndex(TSPRoute newRoute, int index) {
+		this.addChromosomeAtIndex(newRoute, index);
 	}
 	
 	public TSPRoute getRouteAtIndex(int index) {
@@ -56,7 +72,7 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		
 		for (int i = 1; i< this.getPopulationSize(); i++) {
 			
-			if (currentFittestCandidate.getRouteDistance() > this.getRouteAtIndex(i).getRouteDistance()) {
+			if (currentFittestCandidate.getRouteDistance() >= this.getRouteAtIndex(i).getRouteDistance()) {
 				
 				currentFittestCandidate = this.getRouteAtIndex(i);
 			}
@@ -91,18 +107,20 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	@Override
 	public Double getPopulationFitnessMax() {
 		
-		Double maxRouteFitness = 0.0;
+//		Double maxRouteFitness = 0.0;
+//		
+//		for (TSPRoute currentRoute : this.getRoutes()) {
+//			
+//			if (maxRouteFitness < currentRoute.getFitness()) {
+//				
+//				maxRouteFitness = currentRoute.getFitness();
+//				
+//			}
+//		}
+//		
+//		return maxRouteFitness;
 		
-		for (TSPRoute currentRoute : this.getRoutes()) {
-			
-			if (maxRouteFitness < currentRoute.getFitness()) {
-				
-				maxRouteFitness = currentRoute.getFitness();
-				
-			}
-		}
-		
-		return maxRouteFitness;
+		return null;
 		
 	}
 

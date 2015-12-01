@@ -19,12 +19,16 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 
 	public TSPRoute(int size) {
 
-		this.genes = new ArrayList<TSPLocation>(Collections.nCopies(size, null));
+		this.genes = new ArrayList<TSPLocation>();
+		
+		for (int i = 0; i < size; i++) {
+			this.genes.add(null);
+		}
 	}
 
-	public TSPRoute(TSPLocation[] locations) {
-		super(locations);
-	}
+	//public TSPRoute(TSPLocation[] locations) {
+	//	super(locations);
+	//}
 
 	public TSPRoute(ArrayList<TSPLocation> locations) {
 		super(locations, false);
@@ -44,7 +48,9 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 
 	public void setLocationAtPosition(int positionIndex, TSPLocation newLocation) {
 
-		this.getRouteLocations().set(positionIndex, newLocation);
+		//this.getRouteLocations().set(positionIndex, newLocation);
+		
+		this.genes.set(positionIndex, newLocation);
 
 	}
 
@@ -88,7 +94,9 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	private double calcStraightLineDistance(TSPLocation startLocation, TSPLocation endLocation) {
 
 		int xDistance = Math.abs(startLocation.getxCoord() - endLocation.getxCoord());
-		int yDistance = Math.abs(startLocation.getyCoord() - endLocation.getxCoord());
+		
+		// CG - The error was on this line! Ahhhh!
+		int yDistance = Math.abs(startLocation.getyCoord() - endLocation.getyCoord());
 
 		double distance = Math.sqrt((xDistance * xDistance) + (yDistance * yDistance));
 
@@ -105,13 +113,14 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 	@Override
 	public Double getFitness() {
 
-		Double currentFitness = (1 / (double) this.getRouteDistance());
+		Double currentFitness = 1 / (double) this.getRouteDistance();
 
 		return currentFitness;
 	}
 
 	public int getRouteSize() {
-		return super.getSize();
+		//return super.getSize();
+		return genes.size();
 	}
 
 	// TODO: Need to make this better.

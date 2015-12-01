@@ -16,7 +16,9 @@ public class TSPAlgorithm2 {
 		int elitismOffset = 0;
 		
 		if (elitism) {
-			newPopulation.addRoute(pop.getFittestCandidate());
+			//newPopulation.addRoute(pop.getFittestCandidate());
+			
+			newPopulation.addRouteAtIndex(pop.getFittestCandidate(), 0);
 			elitismOffset = 1;
 			//System.out.println("dsada");
 		}
@@ -31,7 +33,9 @@ public class TSPAlgorithm2 {
 			// Crossover parents
 			TSPRoute child = crossover(parent1, parent2);
 			// Add child to new population
-			newPopulation.addRoute(child);
+			//newPopulation.addRoute(child);
+			
+			newPopulation.addRouteAtIndex(child, i);
 		}
 
 		// Mutate the new population a bit to add some new genetic material
@@ -109,7 +113,9 @@ public class TSPAlgorithm2 {
 		// add it
 		for (int i = 0; i < tournamentSize; i++) {
 			int randomId = (int) (Math.random() * pop.getPopulationSize());
-			tournament.addRoute(pop.getRouteAtIndex(randomId));
+			//tournament.addRoute(pop.getRouteAtIndex(randomId));
+			
+			tournament.addRouteAtIndex(pop.getRouteAtIndex(randomId), i);
 		}
 		// Get the fittest tour
 		TSPRoute fittest = tournament.getFittestCandidate();
