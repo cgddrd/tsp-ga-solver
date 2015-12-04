@@ -119,4 +119,25 @@ public class TSPRoute extends GAChromosome<Double, TSPLocation> {
 		return this.getGenes().contains(searchLocation);
 	}
 
+	@Override
+	public String toString() {
+		
+		String tspRouteString = "";
+		
+		for (int i = 0; i < this.genes.size(); i++) {
+			
+			tspRouteString += this.genes.get(i).toString();
+			
+			if (i < (this.genes.size() - 1)) {
+				
+				tspRouteString += " -> ";
+						
+			}
+		}
+		
+		return tspRouteString;
+	}
+	
+	
+
 }

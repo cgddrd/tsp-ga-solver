@@ -122,6 +122,8 @@ public class IOUtils {
 			
 			doc.getDocumentElement().normalize();
 			
+			int experimentRuns = doc.getDocumentElement().getAttribute("runs").length() > 0 ? Integer.parseInt(doc.getDocumentElement().getAttribute("runs")) : 1;
+			
 			NodeList nList = doc.getElementsByTagName("experiment");
 			
 			ArrayList<TSPExperiment> experiments = new ArrayList<>();
@@ -129,6 +131,7 @@ public class IOUtils {
 			for (int i = 0; i < nList.getLength(); i++) {
 				
 				TSPExperiment experiment = new TSPExperiment();
+				experiment.setExperimentRuns(experimentRuns);
 				
 				Node currentExperimentNode = nList.item(i);
 				

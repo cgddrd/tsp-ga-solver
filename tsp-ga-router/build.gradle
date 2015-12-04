@@ -8,4 +8,12 @@ dependencies {
 	compile 'de.erichseifert.gral:gral-core:0.10', 'org.apache.commons:commons-lang3:3.4'
 }
 
+run {
+	
+	if (project.hasProperty("tspargs")) {
+		args Eval.me(tspargs)
+	}
+
+}
+
 mainClassName = 'uk.ac.aber.clg11.tsp.TSP'

@@ -193,67 +193,66 @@ public class TSPAlgorithm {
 
 		TSPPopulation newPopulation = new TSPPopulation(currentPopulation.getPopulationSize());
 		TSPPopulation tempPopulation = new TSPPopulation(currentPopulation.getRoutes());
-		
-		int popSize = this.useElitism ? (currentPopulation.getPopulationSize() - 2) : currentPopulation.getPopulationSize();
+
+		int targetNewPopulationSize = this.useElitism ? (currentPopulation.getPopulationSize() - 2) : currentPopulation.getPopulationSize();
 
 		// Prepare for SUS selection.
 		ArrayList<TSPRoute> stochasticSelectedRoutes = null;
 		int selectionIncrement = 0;
 
-		while (newPopulation.getPopulationSize() < popSize) {
+		while (newPopulation.getPopulationSize() < targetNewPopulationSize) {
 
 			TSPRoute parent1 = null;
 			TSPRoute parent2 = null;
 
 			switch(this.selectionMethodType) {
 
-			case "tournament":
-			case "ts":
-
-				if (this.tournamentSize < 1) {
-					tournamentSize = 50;
-					System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
-					//throw new Exception("Tournament selection active, but tournament size is < 1. Aborting.");
-				}
-
-				parent1 = this.performTournamentSelection(currentPopulation);
-				parent2 = this.performTournamentSelection(currentPopulation);
-
-				break;
-			case "sus":
-			case "stochastic_uniform_sampling":
-
-				// Check if we are yet to initialize the SUS selection (which should be selected all in one go prior to evolving the population)
-				if (stochasticSelectedRoutes == null) {
-					stochasticSelectedRoutes = performStochasticSamplingSelection(currentPopulation, (currentPopulation.getPopulationSize() - newPopulation.getPopulationSize()));
-				}
-
-				parent1 = stochasticSelectedRoutes.get(selectionIncrement++);
-				parent2 = stochasticSelectedRoutes.get(selectionIncrement++);
-
-				break;
-			case "rws":
-			case "roulette":
-			case "roulette_wheel":
-
-				parent1 = this.performRouletteWheelSelection(currentPopulation);
-				parent2 = this.performRouletteWheelSelection(currentPopulation);
-
-				break;
-			default:
-				throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
+				case "tournament":
+				case "ts":
+	
+					if (this.tournamentSize < 1) {
+						tournamentSize = 50;
+						System.out.println("INFO: Tournament selection active with no specified tournament size. Defaulting to size: 50.");
+					}
+	
+					parent1 = this.performTournamentSelection(currentPopulation);
+					parent2 = this.performTournamentSelection(currentPopulation);
+	
+					break;
+				case "sus":
+				case "stochastic_uniform_sampling":
+	
+					// Check if we are yet to initialize the SUS selection (which should be selected all in one go prior to evolving the population)
+					if (stochasticSelectedRoutes == null) {
+						stochasticSelectedRoutes = performStochasticSamplingSelection(currentPopulation, (currentPopulation.getPopulationSize() - newPopulation.getPopulationSize()));
+					}
+	
+					parent1 = stochasticSelectedRoutes.get(selectionIncrement++);
+					parent2 = stochasticSelectedRoutes.get(selectionIncrement++);
+	
+					break;
+				case "rws":
+				case "roulette":
+				case "roulette_wheel":
+	
+					parent1 = this.performRouletteWheelSelection(currentPopulation);
+					parent2 = this.performRouletteWheelSelection(currentPopulation);
+	
+					break;
+				default:
+					throw new Exception("Specified selection method '" + this.selectionMethodType + "' not valid. Unable to perform GA selection. Aborting.");
 
 			}
-			
+
 			switch (this.crossoverMethodType) {
-			
+
 			case "ordered":
 			case "orderone":
 			case "order-one":
 			case "ox1":
 				newPopulation.addRoutes(this.performOrderOneCrossover(parent1, parent2, this.useSingleChild));
 				break;
-				
+
 			case "cycle":
 			case "cyclecrossover":
 				newPopulation.addRoutes(this.performCycleCrossover(parent1, parent2));
@@ -267,7 +266,7 @@ public class TSPAlgorithm {
 		for (int i = 0; i < newPopulation.getPopulationSize(); i++) {
 			this.performSwapMutation(newPopulation.getRouteAtIndex(i));
 		}
-		
+
 		// If we are using elitism, make sure we definitely copy over the best chromosome into the new population.
 		if (this.useElitism) {
 
@@ -467,6 +466,29 @@ public class TSPAlgorithm {
 		// We use a swap mutation for PERUMUTATION REPRESENTATIONS.
 
 		Random random = new Random();
+		
+		ArrayList<TSPLocation> routeLocations = chromosome.getRouteLocations();
+		
+		for (int i = 0; i < routeLocations.size(); i++) {
+			
+			if (random.nextDouble() < this.mutationRate) {
+				
+				int swapIndex1 = random.nextInt(chromosome.getSize());
+				int swapIndex2 = random.nextInt(chromosome.getSize());
+
+				// Make sure the random indexes are not the same.
+				while(swapIndex1 == swapIndex2) {
+					swapIndex2 = random.nextInt(routeLocations.size());
+				}
+				
+				TSPLocation swapLoc1 = chromosome.getRouteLocations().get(swapIndex1);
+				TSPLocation swapLoc2 = chromosome.getRouteLocations().get(swapIndex2);
+				
+				chromosome.setLocationAtPosition(swapIndex2, swapLoc1);
+				chromosome.setLocationAtPosition(swapIndex1, swapLoc2);
+				
+			}
+		}
 
 //		if (random.nextDouble() <= this.mutationRate) {
 //
@@ -485,27 +507,27 @@ public class TSPAlgorithm {
 //			chromosome.getRouteLocations().set(swapIndex2, test1);
 //
 //		}
-		
+
 		// Loop through tour cities
-        for(int tourPos1=0; tourPos1 < chromosome.getRouteSize(); tourPos1++){
-            // Apply mutation rate
-            if(Math.random() < this.mutationRate){
-                // Get a second random position in the tour
-                int tourPos2 = (int) (chromosome.getRouteSize() * Math.random());
-
-                // Get the cities at target position in tour
-                TSPLocation city1 = chromosome.getLocationAtPosition(tourPos1);
-                TSPLocation city2 = chromosome.getLocationAtPosition(tourPos2);
-
-                chromosome.setLocationAtPosition(tourPos2, city1);
-                chromosome.setLocationAtPosition(tourPos1, city2);
-                // Swap them around
-             
-            }
-        }
+//		for(int tourPos1=0; tourPos1 < chromosome.getRouteSize(); tourPos1++){
+//			// Apply mutation rate
+//			if(Math.random() < this.mutationRate){
+//				// Get a second random position in the tour
+//				int tourPos2 = (int) (chromosome.getRouteSize() * Math.random());
+//
+//				// Get the cities at target position in tour
+//				TSPLocation city1 = chromosome.getLocationAtPosition(tourPos1);
+//				TSPLocation city2 = chromosome.getLocationAtPosition(tourPos2);
+//
+//				chromosome.setLocationAtPosition(tourPos2, city1);
+//				chromosome.setLocationAtPosition(tourPos1, city2);
+//				// Swap them around
+//
+//			}
+//		}
 
 	}
-	
+
 
 	public class CycleCrossoverItem<T extends GAGene>  {
 

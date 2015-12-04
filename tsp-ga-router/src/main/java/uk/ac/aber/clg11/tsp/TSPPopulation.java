@@ -7,6 +7,8 @@ import uk.ac.aber.clg11.tsp.ga.GAPopulation;
 
 public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	
+	private int populationDistance = -1;
+	
 	public TSPPopulation(int populationSize) {
 		super(populationSize);
 	}
@@ -68,6 +70,23 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		
 	}
 
+	public Integer getPopulationDistanceSum() {
+		
+		if (this.populationDistance < 0) {
+			
+			int distanceSum = 0;
+			
+			for (TSPRoute current : this.chromosomeCandidates) {
+				distanceSum += current.getRouteDistance();
+			}
+			
+			this.populationDistance = distanceSum;
+		}
+		
+		return this.populationDistance;
+		
+	}
+
 	@Override
 	public Double getPopulationFitnessSum() {
 		
@@ -85,6 +104,14 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		return this.populationFitness;
 		
 	}
+	
+	public Integer getPopulationDistanceAverage() {
+		
+		Integer populationDistanceSum = this.getPopulationDistanceSum();
+		
+		return populationDistanceSum / this.getPopulationSize();
+		
+	}
 
 	@Override
 	public Double getPopulationFitnessAverage() {
@@ -94,22 +121,22 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		return populationFitnessSum / this.getPopulationSize();
 		
 	}
-
+	
 	@Override
 	public Double getPopulationFitnessMax() {
 		
-		Double maxRouteFitness = 0.0;
+		return this.getFittestCandidate().getFitness();
 		
-		for (TSPRoute currentRoute : this.getRoutes()) {
-			
-			if (maxRouteFitness < currentRoute.getFitness()) {
-				
-				maxRouteFitness = currentRoute.getFitness();
-				
-			}
-		}
-		
-		return maxRouteFitness;
+//		Double maxRouteFitness = 0.0;
+//		
+//		for (TSPRoute currentRoute : this.getRoutes()) {
+//			
+//			if (maxRouteFitness < currentRoute.getFitness()) {
+//				
+//				maxRouteFitness = currentRoute.getFitness();
+//				
+//			}
+//		}
 		
 	}
 

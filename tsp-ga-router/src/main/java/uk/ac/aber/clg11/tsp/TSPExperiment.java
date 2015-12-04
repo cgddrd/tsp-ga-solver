@@ -1,14 +1,19 @@
 package uk.ac.aber.clg11.tsp;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class TSPExperiment {
 
 	private String experimentName = "TSPExperiment_"
 			+ new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date());
+	
 	private int experimentGenerations;
 	private int noOfLocations;
+	private int experimentRuns = 1;
 
 	private TSPMutationSettings mutationSettings = new TSPMutationSettings();
 	private TSPCrossoverSettings crossoverSettings = new TSPCrossoverSettings();
@@ -47,6 +52,14 @@ public class TSPExperiment {
 
 	public void setNoOfLocations(int noOfLocations) {
 		this.noOfLocations = noOfLocations;
+	}
+
+	public int getExperimentRuns() {
+		return experimentRuns;
+	}
+
+	public void setExperimentRuns(int experimentRuns) {
+		this.experimentRuns = experimentRuns;
 	}
 
 	public TSPMutationSettings getMutationSettings() {
@@ -92,7 +105,14 @@ public class TSPExperiment {
 		private double averageFitness = -1;
 		private double bestFitness = -1;
 		private int bestDistance = -1;
+		private TSPRoute originalFittestCandidate = null;
+		private TSPRoute currentFittestCandidate = null;
 
+		private ArrayList<Integer> experimentBestDistances = new ArrayList<>();
+		private ArrayList<Integer> experimentAverageDistances = new ArrayList<>();
+		private ArrayList<Double> experimentBestFitnesses = new ArrayList<>();
+		private ArrayList<Double> experimentAverageFitnesses = new ArrayList<>();
+		
 		public TSPExperimentResults() {
 		}
 		
@@ -143,14 +163,71 @@ public class TSPExperiment {
 			this.bestDistance = (this.bestDistance == -1 || bestDistance < this.bestDistance) ? bestDistance : this.bestDistance;
 		}
 
+		public ArrayList<Integer> getExperimentBestDistances() {
+			return experimentBestDistances;
+		}
+
+		public void setExperimentBestDistances(ArrayList<Integer> experimentBestDistances) {
+			this.experimentBestDistances = experimentBestDistances;
+		}
+
+		public ArrayList<Double> getExperimentBestFitnesses() {
+			return experimentBestFitnesses;
+		}
+
+		public void setExperimentBestFitnesses(ArrayList<Double> experimentBestFitnesses) {
+			this.experimentBestFitnesses = experimentBestFitnesses;
+		}
+
+		public ArrayList<Double> getExperimentAverageFitnesses() {
+			return experimentAverageFitnesses;
+		}
+
+		public void setExperimentAverageFitnesses(ArrayList<Double> experimentAverageFitnesses) {
+			this.experimentAverageFitnesses = experimentAverageFitnesses;
+		}
+
+		public ArrayList<Integer> getExperimentAverageDistances() {
+			return experimentAverageDistances;
+		}
+
+		public void setExperimentAverageDistances(ArrayList<Integer> experimentAverageDistances) {
+			this.experimentAverageDistances = experimentAverageDistances;
+		}
+
+		public TSPRoute getOriginalFittestCandidate() {
+			return originalFittestCandidate;
+		}
+
+		public void setOriginalFittestCandidate(TSPRoute originalFittestCandidate) {
+			this.originalFittestCandidate = originalFittestCandidate;
+		}
+
+		public TSPRoute getCurrentFittestCandidate() {
+			return currentFittestCandidate;
+		}
+
+		public void setCurrentFittestCandidate(TSPRoute currentFittestCandidate) {
+			this.currentFittestCandidate = currentFittestCandidate;
+		}
+
 	}
 
 	public class TSPMutationSettings {
 
+		private String mutationMethod = "swap";
 		private Double mutationRate;
 
 		private TSPMutationSettings() {
 
+		}
+		
+		public String getMutationMethod() {
+			return mutationMethod;
+		}
+
+		public void setMutationMethod(String mutationMethod ) {
+			this.mutationMethod = mutationMethod;
 		}
 
 		public void setMutationRate(Double mutationRate) {
@@ -163,7 +240,7 @@ public class TSPExperiment {
 
 		@Override
 		public String toString() {
-			return "TSPMutationSettings [mutationRate=" + mutationRate + "]";
+			return "TSPMutationSettings [ mutationMethod=" + mutationMethod + ", " + "mutationRate=" + mutationRate + " ]";
 		}
 
 	}

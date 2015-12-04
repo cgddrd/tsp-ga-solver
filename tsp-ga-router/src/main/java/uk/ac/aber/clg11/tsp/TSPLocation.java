@@ -22,7 +22,7 @@ public class TSPLocation extends GAGene {
 
 	@Override
 	public String toString() {
-		return "TSPLocation [xCoord = " + xCoord + ", yCoord = " + yCoord + "]";
+		return "(" + xCoord + ", " + yCoord + ")";
 	}
 	
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tspexperiments runs="100">
+	<experiment name="ex1-ts-e" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="tournament" tournament_size="10" use_elitism="true" />
+	</experiment>
+	<experiment name="ex1-sus-e" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="sus" use_elitism="true" />
+	</experiment>
+	<experiment name="ex1-rws-e" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="rws" use_elitism="true" />
+	</experiment>
+	<experiment name="ex1-ts" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="tournament" tournament_size="10" use_elitism="false" />
+	</experiment>
+	<experiment name="ex1-sus" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="sus" use_elitism="false" />
+	</experiment>
+	<experiment name="ex1-rws" gens="500">
+		<population size="100" />
+		<mutation rate="0.015"/>
+		<crossover method="ordered" rate="0.75"/>
+		<selection method="rws" use_elitism="false" />
+	</experiment>
+</tspexperiments>
