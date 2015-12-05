@@ -1,0 +1,19 @@
+TSPExperiment
+
+experimentName=ex2-sus-cycle-e
+
+date=05_12_2015_16_36_35_194
+
+experimentResults=TSPExperimentResults [experimentDuration=162906166, experimentDurationString=null, averageFitness=5.660502366446109E-4, bestFitness=7.874015748031496E-4, bestDistance=1270]
+
+experimentGenerations=500
+
+noOfLocations=30
+
+mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.015 ]
+
+crossoverSettings=TSPCrossoverSettings [crossoverMethod=cycle, crossoverRate=0.75, returnSingleChild=false]
+
+selectionSettings=TSPSelectionSettings [selectionMethod=sus, tournamentSize=-1, useElitism=true, returnSingleChild=false]
+
+populationSettings=TSPPopulationSettings [populationSize=100]

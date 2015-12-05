@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -16,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import uk.ac.aber.clg11.tsp.TSPExperiment.TSPExperimentResults;
@@ -54,10 +56,9 @@ public class TSP {
 
 		int noOfExperimentRuns = experimentSettings.getExperimentRuns();
 		
-		ArrayList<Double> experimentBestDistanceAverages = new ArrayList<>();
-		ArrayList<Double> experimentAverageDistanceAverages = new ArrayList<>();
-		ArrayList<Double> experimentAverageFitnessAverages = new ArrayList<>();
-		ArrayList<Double> experimentBestFitnessAverages = new ArrayList<>();
+		ArrayList<Integer> experimentInitialDistances = new ArrayList<>();
+		ArrayList<Integer> experimentBestDistanceAverages = new ArrayList<>();
+		ArrayList<Integer> experimentAverageDistanceAverages = new ArrayList<>();
 		
 		ArrayList<TSPExperimentResults> experimentsResults = new ArrayList<>();
 		ArrayList<Integer> generations = (ArrayList<Integer>) IntStream.rangeClosed(1, experimentSettings.getExperimentGenerations()).boxed().collect(Collectors.toList());
@@ -81,9 +82,11 @@ public class TSP {
 					true, locations);
 			
 			
+			TSPRoute originalFittestCandidate = (TSPRoute) population.getFittestCandidate();
+			
+			experimentInitialDistances.add(originalFittestCandidate.getRouteDistance());
+
 			if (j == (noOfExperimentRuns - 1)) {
-				
-				TSPRoute originalFittestCandidate = (TSPRoute) population.getFittestCandidate();
 				
 				experimentSettings.getExperimentResults().setOriginalFittestCandidate(originalFittestCandidate);
 				
@@ -116,36 +119,24 @@ public class TSP {
 		
 		for (int i = 0; i < generations.size(); i++) {
 			
-			double experimentRunsBestDistanceAverage = 0.0;
-			double experimentRunsAverageDistanceAverage = 0.0;
-			double experimentRunsAverageFitnessAverage = 0.0;
-			double experimentRunsBestFitnessAverage = 0.0;
+			int experimentRunsBestDistanceAverage = 0;
+			int experimentRunsAverageDistanceAverage = 0;
 			
 			int sumBestDistance = 0;
 			int sumAverageDistance = 0;
-			double sumAverageFitness = 0;
-			double sumBestFitness = 0;
 			
 			for (TSPExperimentResults test : experimentsResults) {
 			
 				sumBestDistance += test.getExperimentBestDistances().get(i);
 				sumAverageDistance += test.getExperimentAverageDistances().get(i);
-				sumBestFitness += test.getExperimentBestFitnesses().get(i);
-				sumAverageFitness += test.getExperimentAverageFitnesses().get(i);
 				
 			}
 			
-			experimentRunsBestDistanceAverage = (double) sumBestDistance / noOfExperimentRuns;
+			experimentRunsBestDistanceAverage = sumBestDistance / noOfExperimentRuns;
 			experimentBestDistanceAverages.add(experimentRunsBestDistanceAverage);
 			
-			experimentRunsAverageDistanceAverage = (double) sumAverageDistance / noOfExperimentRuns;
+			experimentRunsAverageDistanceAverage = sumAverageDistance / noOfExperimentRuns;
 			experimentAverageDistanceAverages.add(experimentRunsAverageDistanceAverage);
-			
-			experimentRunsBestFitnessAverage = (double) sumBestFitness / noOfExperimentRuns;
-			experimentBestFitnessAverages.add(experimentRunsBestFitnessAverage);
-			
-			experimentRunsAverageFitnessAverage = (double) sumAverageFitness / noOfExperimentRuns;
-			experimentAverageFitnessAverages.add(experimentRunsAverageFitnessAverage);
 			
 		}
 		
@@ -164,15 +155,43 @@ public class TSP {
 																								 StringUtils.capitalize(experimentSettings.getCrossoverSettings().getCrossoverMethod()), 
 																							   	 experimentSettings.getCrossoverSettings().getCrossoverRate(),
 																							   	 StringUtils.capitalize(experimentSettings.getMutationSettings().getMutationMethod()),
-																							     experimentSettings.getMutationSettings().getMutationRate()));
+																							   	 experimentSettings.getMutationSettings().getMutationRate()));
+		
+		long experimentAverageDuration = 0;
+		
+		for (TSPExperimentResults test: experimentsResults) {
+			
+			experimentAverageDuration += test.getExperimentDuration();
+			
+		}
+		
+		int experimentOverallAverageBestDistance = 0;
+		
+		for (Integer test: experimentBestDistanceAverages) {
+			
+			experimentOverallAverageBestDistance += test;
+			
+		}
+		
+		int experimentOverallAverageOriginalDistance = 0;
+		
+		for (Integer test: experimentInitialDistances) {
+			
+			experimentOverallAverageOriginalDistance += test;
+			
+		}
+		
+		
 
 		frame3.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "results.png");
 
 		System.out.println("COMPLETED: " + experimentSettings.getExperimentName());
-		System.out.println("Initial Distance: " + experimentSettings.getExperimentResults().getOriginalFittestCandidate().getRouteDistance());
-		System.out.println("Best Distance: " + experimentSettings.getExperimentResults().getBestDistance());
-		System.out.println("Best Route: " + experimentSettings.getExperimentResults().getCurrentFittestCandidate().toString());
-		System.out.println("Average Duration: " + experimentSettings.getExperimentResults().getExperimentDurationString());
+		//System.out.println("Average Initial Distance: " + experimentOverallAverageOriginalDistance);
+		System.out.println("Average Initial Distance: " + experimentOverallAverageOriginalDistance / noOfExperimentRuns);
+		System.out.println("Average Best Distance: " + (experimentOverallAverageBestDistance / experimentBestDistanceAverages.size()));
+		System.out.println("Overall Best Distance: " + experimentSettings.getExperimentResults().getBestDistance());
+		System.out.println("Overall Best Route: " + experimentSettings.getExperimentResults().getCurrentFittestCandidate().toString());
+		System.out.println("Average Duration: " + DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(experimentAverageDuration / noOfExperimentRuns), "HH:mm:ss.SSS"));
 		System.out.println("------------------------------------------------------------------------");
 	}
 	
@@ -202,9 +221,8 @@ public class TSP {
 		}
 		
 		stopWatch.stop();
-		
+	
 		experimentSettings.getExperimentResults().setExperimentDuration(stopWatch.getNanoTime());
-		experimentSettings.getExperimentResults().setExperimentDurationString(stopWatch.toString());
 
 		return experimentSettings;
 		

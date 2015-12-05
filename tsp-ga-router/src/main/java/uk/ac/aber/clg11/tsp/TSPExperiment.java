@@ -3,8 +3,10 @@ package uk.ac.aber.clg11.tsp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 public class TSPExperiment {
 
@@ -132,11 +134,7 @@ public class TSPExperiment {
 		}
 
 		public String getExperimentDurationString() {
-			return experimentDurationString;
-		}
-
-		public void setExperimentDurationString(String experimentDurationString) {
-			this.experimentDurationString = experimentDurationString;
+			return DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(experimentDuration), "HH:mm:ss.SSS");
 		}
 
 		public double getAverageFitness() {

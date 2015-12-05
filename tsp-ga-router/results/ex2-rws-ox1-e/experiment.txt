@@ -1,10 +1,10 @@
 TSPExperiment
 
-experimentName=ex1-rws-e
+experimentName=ex2-rws-ox1-e
 
-date=04_12_2015_21_18_12_120
+date=05_12_2015_16_36_00_959
 
-experimentResults=TSPExperimentResults [experimentDuration=128672355, experimentDurationString=00:00:00.128, averageFitness=4.318643865477492E-4, bestFitness=6.635700066357001E-4, bestDistance=1507]
+experimentResults=TSPExperimentResults [experimentDuration=115510794, experimentDurationString=null, averageFitness=4.261228878930569E-4, bestFitness=6.657789613848203E-4, bestDistance=1502]
 
 experimentGenerations=500
 

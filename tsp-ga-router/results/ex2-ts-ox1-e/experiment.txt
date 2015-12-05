@@ -1,0 +1,19 @@
+TSPExperiment
+
+experimentName=ex2-ts-ox1-e
+
+date=05_12_2015_16_35_35_668
+
+experimentResults=TSPExperimentResults [experimentDuration=267263847, experimentDurationString=null, averageFitness=9.899887286630067E-4, bestFitness=0.001049317943336831, bestDistance=953]
+
+experimentGenerations=500
+
+noOfLocations=30
+
+mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.015 ]
+
+crossoverSettings=TSPCrossoverSettings [crossoverMethod=ordered, crossoverRate=0.75, returnSingleChild=false]
+
+selectionSettings=TSPSelectionSettings [selectionMethod=tournament, tournamentSize=10, useElitism=true, returnSingleChild=false]
+
+populationSettings=TSPPopulationSettings [populationSize=100]

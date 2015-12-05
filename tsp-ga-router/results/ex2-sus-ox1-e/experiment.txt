@@ -1,10 +1,10 @@
 TSPExperiment
 
-experimentName=ex1-sus-e
+experimentName=ex2-sus-ox1-e
 
-date=04_12_2015_21_17_58_089
+date=05_12_2015_16_35_47_962
 
-experimentResults=TSPExperimentResults [experimentDuration=118390350, experimentDurationString=00:00:00.118, averageFitness=4.673854862509898E-4, bestFitness=6.89655172413793E-4, bestDistance=1450]
+experimentResults=TSPExperimentResults [experimentDuration=111165832, experimentDurationString=null, averageFitness=5.807593535013641E-4, bestFitness=8.59106529209622E-4, bestDistance=1164]
 
 experimentGenerations=500
 
