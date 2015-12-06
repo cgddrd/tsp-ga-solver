@@ -2,9 +2,7 @@ TSPExperiment
 
 experimentName=ex1-sus
 
-date=06_12_2015_16_24_39_287
-
-experimentResults=TSPExperimentResults [experimentDuration=109478110, experimentDurationString=null, averageFitness=4.3301498607716004E-4, bestFitness=6.422607578676942E-4, bestDistance=1557]
+date=06_12_2015_18_21_33_754
 
 experimentGenerations=500
 

@@ -2,11 +2,7 @@ package uk.ac.aber.clg11.tsp;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,9 +17,10 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
 import uk.ac.aber.clg11.tsp.TSPExperiment.TSPExperimentResults;
+import uk.ac.aber.clg11.tsp.exception.TSPPlotterException;
 import uk.ac.aber.clg11.tsp.utils.IOUtils;
 
-public class TSP {
+public class TSPSolver {
 
 	private Options options = new Options();
 	private CommandLineParser parser = new DefaultParser();
@@ -31,7 +28,7 @@ public class TSP {
 
 	public static void main(String[] args) throws Exception {
 
-		TSP tsp = new TSP();
+		TSPSolver tsp = new TSPSolver();
 		tsp.runTSPGASolver(args);
 		
 	}
@@ -50,78 +47,68 @@ public class TSP {
 		options.addOption(new Option("help", "Print this help message."));
 
 	}
-
-	private void performTSPExperiment(TSPExperiment experimentSettings, ArrayList<TSPLocation> locations,
+	
+	private void performTSPExperiment(TSPExperiment currentExperiment, ArrayList<TSPLocation> locations,
 			String exportFileLocation) throws Exception {
 
-		int noOfExperimentRuns = experimentSettings.getExperimentRuns();
+		int noOfExperimentRuns = currentExperiment.getExperimentRuns();
 		
 		ArrayList<Integer> experimentInitialDistances = new ArrayList<>();
 		ArrayList<Integer> experimentBestDistanceAverages = new ArrayList<>();
 		ArrayList<Integer> experimentAverageDistanceAverages = new ArrayList<>();
 		
-		ArrayList<TSPExperimentResults> experimentsResults = new ArrayList<>();
-		ArrayList<Integer> generations = (ArrayList<Integer>) IntStream.rangeClosed(1, experimentSettings.getExperimentGenerations()).boxed().collect(Collectors.toList());
-		
-		TSPPlotter plotter = null;
+		//ArrayList<TSPExperimentResults> experimentResults = new ArrayList<>();
+		//ArrayList<Integer> generations = (ArrayList<Integer>) IntStream.rangeClosed(1, experimentSettings.getExperimentGenerations()).boxed().collect(Collectors.toList());
 		
 		System.out.println("------------------------------------------------------------------------");
-		System.out.println("Conducting experiment: '" + experimentSettings.getExperimentName() + "' - Runs: " + experimentSettings.getExperimentRuns());
+		System.out.println("Conducting experiment: '" + currentExperiment.getExperimentName() + "' - Runs: " + currentExperiment.getExperimentRuns());
 		
 		for (int j = 0; j < noOfExperimentRuns; j++) {
-	
-			TSPAlgorithm ga = new TSPAlgorithm(experimentSettings.getMutationSettings().getMutationRate(),
-					experimentSettings.getCrossoverSettings().getCrossoverRate(),
-					experimentSettings.getSelectionSettings().getSelectionMethod(),
-					experimentSettings.getCrossoverSettings().getCrossoverMethod(),
-					experimentSettings.getSelectionSettings().getTournamentSize(),
-					experimentSettings.getSelectionSettings().getReturnSingleChild(),
-					experimentSettings.getSelectionSettings().getUseElitism());
-
-			TSPPopulation population = new TSPPopulation(experimentSettings.getPopulationSettings().getPopulationSize(),
-					true, locations);
 			
+			TSPExperimentResults currentExperimentResult = currentExperiment.getNewExperimentResult();
+	
+			TSPAlgorithm ga = new TSPAlgorithm(currentExperiment.getMutationSettings().getMutationRate(),
+					currentExperiment.getCrossoverSettings().getCrossoverRate(),
+					currentExperiment.getSelectionSettings().getSelectionMethod(),
+					currentExperiment.getCrossoverSettings().getCrossoverMethod(),
+					currentExperiment.getSelectionSettings().getTournamentSize(),
+					currentExperiment.getSelectionSettings().getReturnSingleChild(),
+					currentExperiment.getSelectionSettings().getUseElitism());
+
+			TSPPopulation population = new TSPPopulation(currentExperiment.getPopulationSettings().getPopulationSize(),
+					true, locations);
 			
 			TSPRoute originalFittestCandidate = (TSPRoute) population.getFittestCandidate();
 			
+			currentExperimentResult.setOriginalFittestCandidate(originalFittestCandidate);
+			
 			experimentInitialDistances.add(originalFittestCandidate.getRouteDistance());
-
+			
+			//currentExperiment = conductTimedExperimentRun(currentExperiment, ga, population);
+			
+			currentExperimentResult = conductTimedExperimentRun(currentExperiment, currentExperimentResult, ga, population);
+			
+			currentExperiment.addExperimentResult(currentExperimentResult);
+			
+			
+			// When we are on the final run of the experiment, export the results to file.
 			if (j == (noOfExperimentRuns - 1)) {
-				
-				experimentSettings.getExperimentResults().setOriginalFittestCandidate(originalFittestCandidate);
 				
 				// Plot the initial best TSP solution.
-				plotter = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setXAxisRangeSettings(0, 200).setYAxisRangeSettings(0, 200).buildTSPPlotter();
-				
-				//plotter.updateData(originalFittestCandidate.getGenes());
-				//plotter.generatePlot();
-				
-				plotter.plotTSPSolution(originalFittestCandidate.getGenes());
-				plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "start.png");
-				
-			}
-			
-			
-			experimentSettings = conductTimedExperiment(experimentSettings, ga, population);
-			experimentsResults.add(experimentSettings.getExperimentResults());
-			
-			
-			if (j == (noOfExperimentRuns - 1)) {
+				this.exportSolutionGraphicToFile(currentExperimentResult.getOriginalFittestCandidate(), 
+						FilenameUtils.concat(exportFileLocation, currentExperiment.getExperimentName()), "Initial_Solution.png");
 				
 				// Plot the final best TSP solution.
-				//plotter.updateData(experimentSettings.getExperimentResults().getCurrentFittestCandidate().getGenes());
-				//plotter.generatePlot();
-				
-				plotter.plotTSPSolution(experimentSettings.getExperimentResults().getCurrentFittestCandidate().getGenes());
-				plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "end.png");
+				this.exportSolutionGraphicToFile(currentExperimentResult.getCurrentFittestCandidate(), 
+						FilenameUtils.concat(exportFileLocation, currentExperiment.getExperimentName()), "Final_Solution.png");
 
-				io.exportExperimentParametersToFile(experimentSettings, FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "experiment.txt");
+				io.exportExperimentParametersToFile(currentExperiment, FilenameUtils.concat(exportFileLocation, currentExperiment.getExperimentName()), "Experiment_Results.txt");
 				
 			}
 
 		}
 		
-		for (int i = 0; i < generations.size(); i++) {
+		for (int i = 0; i < currentExperiment.getExperimentGenerations(); i++) {
 			
 			int experimentRunsBestDistanceAverage = 0;
 			int experimentRunsAverageDistanceAverage = 0;
@@ -129,7 +116,7 @@ public class TSP {
 			int sumBestDistance = 0;
 			int sumAverageDistance = 0;
 			
-			for (TSPExperimentResults test : experimentsResults) {
+			for (TSPExperimentResults test : currentExperiment.getExperimentResultsCollection()) {
 			
 				sumBestDistance += test.getExperimentBestDistances().get(i);
 				sumAverageDistance += test.getExperimentAverageDistances().get(i);
@@ -153,17 +140,17 @@ public class TSP {
 										  .setYAxisTitle("Distance (Fitness)")
 										  .buildTSPPlotter();
 		
-		frame3.updatePlotData(new String[]{"Generations", "Best Distance", "Average Distance"}, generations, experimentBestDistanceAverages, experimentAverageDistanceAverages);
+		frame3.updatePlotData(new String[]{"Generations", "Best Distance", "Average Distance"}, currentExperiment.getGenerationsRangeCollection(), experimentBestDistanceAverages, experimentAverageDistanceAverages);
 
-		frame3.generatePlot(true, false, String.format("TSP-GA: S:%s, C:%s (%.3f), M:%s (%.3f)", StringUtils.capitalize(experimentSettings.getSelectionSettings().getSelectionMethod()),
-																								 StringUtils.capitalize(experimentSettings.getCrossoverSettings().getCrossoverMethod()), 
-																							   	 experimentSettings.getCrossoverSettings().getCrossoverRate(),
-																							   	 StringUtils.capitalize(experimentSettings.getMutationSettings().getMutationMethod()),
-																							   	 experimentSettings.getMutationSettings().getMutationRate()));
+		frame3.generatePlot(true, false, String.format("TSP-GA: S:%s, C:%s (%.3f), M:%s (%.3f)", StringUtils.capitalize(currentExperiment.getSelectionSettings().getSelectionMethod()),
+																								 StringUtils.capitalize(currentExperiment.getCrossoverSettings().getCrossoverMethod()), 
+																							   	 currentExperiment.getCrossoverSettings().getCrossoverRate(),
+																							   	 StringUtils.capitalize(currentExperiment.getMutationSettings().getMutationMethod()),
+																							   	 currentExperiment.getMutationSettings().getMutationRate()));
 		
 		long experimentAverageDuration = 0;
 		
-		for (TSPExperimentResults test: experimentsResults) {
+		for (TSPExperimentResults test: currentExperiment.getExperimentResultsCollection()) {
 			
 			experimentAverageDuration += test.getExperimentDuration();
 			
@@ -185,20 +172,24 @@ public class TSP {
 			
 		}
 		
-		
+		frame3.exportToFile(FilenameUtils.concat(exportFileLocation, currentExperiment.getExperimentName()), "results.png");
 
-		frame3.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "results.png");
-
-		System.out.println("COMPLETED: " + experimentSettings.getExperimentName());
+		System.out.println("COMPLETED: " + currentExperiment.getExperimentName());
 		System.out.println("Average Initial Distance: " + experimentOverallAverageOriginalDistance / noOfExperimentRuns);
 		System.out.println("Average Best Distance: " + (experimentOverallAverageBestDistance / experimentBestDistanceAverages.size()));
-		System.out.println("Overall Best Distance: " + experimentSettings.getExperimentResults().getBestDistance());
-		System.out.println("Overall Best Route: " + experimentSettings.getExperimentResults().getCurrentFittestCandidate().toString());
+		//System.out.println("Overall Best Distance: " + currentExperiment.getExperimentResults().getBestDistance());
+		
+		System.out.println("Overall Best Distance: " + currentExperiment.getBestOverallDistance());
+		System.out.println("Overall Best Route: " + currentExperiment.getOverallFittestRoute().toString());
+		
+		//System.out.println("Overall Best Route: " + currentExperiment.getExperimentResults().getCurrentFittestCandidate().toString());
+		
+		
 		System.out.println("Average Duration: " + DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(experimentAverageDuration / noOfExperimentRuns), "HH:mm:ss.SSS"));
 		System.out.println("------------------------------------------------------------------------");
 	}
 	
-	public TSPExperiment conductTimedExperiment(TSPExperiment experimentSettings, TSPAlgorithm ga, TSPPopulation population) throws Exception {
+	public TSPExperimentResults conductTimedExperimentRun(TSPExperiment currentExperiment, TSPExperimentResults currentExperimentResult, TSPAlgorithm ga, TSPPopulation population) throws Exception {
 		
 		StopWatch stopWatch = new StopWatch();
 		
@@ -206,28 +197,36 @@ public class TSP {
 
 		population = ga.evolvePopulation(population);
 
-		for (int i = 0; i < experimentSettings.getExperimentGenerations(); i++) {
+		for (int i = 0; i < currentExperiment.getExperimentGenerations(); i++) {
 			
 			population = ga.evolvePopulation(population);
 
 			TSPRoute fittestCandiate = (TSPRoute) population.getFittestCandidate();
 			
-			experimentSettings.getExperimentResults().setCurrentFittestCandidate(fittestCandiate);
-			experimentSettings.getExperimentResults().updateAverageFitness(population.getPopulationFitnessAverage());
-			experimentSettings.getExperimentResults().updateBestFitness(fittestCandiate.getFitness());
-			experimentSettings.getExperimentResults().updateBestDistance(fittestCandiate.getRouteDistance());
+			currentExperimentResult.setCurrentFittestCandidate(fittestCandiate);
+			currentExperimentResult.updateAverageFitness(population.getPopulationFitnessAverage());
+			currentExperimentResult.updateBestFitness(fittestCandiate.getFitness());
+			currentExperimentResult.updateBestDistance(fittestCandiate.getRouteDistance());
 			
-			experimentSettings.getExperimentResults().getExperimentBestDistances().add(fittestCandiate.getRouteDistance());
-			experimentSettings.getExperimentResults().getExperimentAverageDistances().add(population.getPopulationDistanceAverage());
-			experimentSettings.getExperimentResults().getExperimentAverageFitnesses().add(population.getPopulationFitnessAverage());
-			experimentSettings.getExperimentResults().getExperimentBestFitnesses().add(population.getPopulationFitnessMax());
+			currentExperimentResult.getExperimentBestDistances().add(fittestCandiate.getRouteDistance());
+			currentExperimentResult.getExperimentAverageDistances().add(population.getPopulationDistanceAverage());
+			currentExperimentResult.getExperimentAverageFitnesses().add(population.getPopulationFitnessAverage());
+			currentExperimentResult.getExperimentBestFitnesses().add(population.getPopulationFitnessMax());
 		}
 		
 		stopWatch.stop();
 	
-		experimentSettings.getExperimentResults().setExperimentDuration(stopWatch.getNanoTime());
+		currentExperimentResult.setExperimentDuration(stopWatch.getNanoTime());
 
-		return experimentSettings;
+		return currentExperimentResult;
+		
+	}
+	
+	private void exportSolutionGraphicToFile(TSPRoute solutionToExport, String filePath, String fileName) throws TSPPlotterException {
+		
+		TSPPlotter plotter = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setXAxisRangeSettings(0, 200).setYAxisRangeSettings(0, 200).buildTSPPlotter();
+		plotter.plotTSPSolution(solutionToExport.getGenes());
+		plotter.exportToFile(filePath, "Initial_Solution.png");
 		
 	}
 

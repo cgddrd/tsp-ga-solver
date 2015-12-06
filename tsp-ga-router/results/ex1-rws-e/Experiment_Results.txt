@@ -2,9 +2,7 @@ TSPExperiment
 
 experimentName=ex1-rws-e
 
-date=06_12_2015_16_24_14_656
-
-experimentResults=TSPExperimentResults [experimentDuration=121367608, experimentDurationString=null, averageFitness=4.4233620991632086E-4, bestFitness=7.00770847932726E-4, bestDistance=1427]
+date=06_12_2015_18_21_09_478
 
 experimentGenerations=500
 

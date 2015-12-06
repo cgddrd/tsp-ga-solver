@@ -4,8 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 public class TSPExperiment {
@@ -16,12 +17,17 @@ public class TSPExperiment {
 	private int experimentGenerations;
 	private int noOfLocations;
 	private int experimentRuns = 1;
+	
+	private int overallBestDistance = Integer.MAX_VALUE;
+	private TSPRoute overallFittestRoute = null;
 
 	private TSPMutationSettings mutationSettings = new TSPMutationSettings();
 	private TSPCrossoverSettings crossoverSettings = new TSPCrossoverSettings();
 	private TSPSelectionSettings selectionSettings = new TSPSelectionSettings();
 	private TSPPopulationSettings populationSettings = new TSPPopulationSettings();
-	private TSPExperimentResults experimentResults = new TSPExperimentResults();
+	//private TSPExperimentResults experimentResults = new TSPExperimentResults();
+	
+	private ArrayList<TSPExperimentResults> experimentResultsCollection = new ArrayList<>();
 
 	public TSPExperiment() {
 
@@ -79,20 +85,86 @@ public class TSPExperiment {
 	public TSPPopulationSettings getPopulationSettings() {
 		return populationSettings;
 	}
+	
+	public TSPRoute getOverallFittestRoute() {
+		
+		int overallBestDistance = Integer.MAX_VALUE;
+		
+		if (this.overallFittestRoute == null) {
+			
+			for (TSPExperimentResults currentResult : this.experimentResultsCollection) {
+				
+				if (currentResult.getCurrentFittestCandidate().getRouteDistance() <= overallBestDistance) {
+					
+					this.overallFittestRoute = currentResult.getCurrentFittestCandidate();
+					
+				}
+				
+			}
+			
+		}
+		
+		return overallFittestRoute;
+	}
+	
+	public int getBestOverallDistance() {
+		
+		if (this.overallBestDistance == Integer.MAX_VALUE) {
+			
+			for (TSPExperimentResults currentResult : this.experimentResultsCollection) {
+				
+				if (currentResult.getBestDistance() <= this.overallBestDistance) {
+					
+					this.overallBestDistance = currentResult.getBestDistance();
+					
+				}
+				
+			}
 
-	public TSPExperimentResults getExperimentResults() {
-		return experimentResults;
+		}
+		
+		return overallBestDistance;
 	}
 
-	public void setExperimentResults(TSPExperimentResults experimentResults) {
-		this.experimentResults = experimentResults;
+//	public TSPExperimentResults getExperimentResults() {
+//		return experimentResults;
+//	}
+//
+//	public void setExperimentResults(TSPExperimentResults experimentResults) {
+//		this.experimentResults = experimentResults;
+//	}
+	
+	public TSPExperimentResults getCurrentExperimentResult() {
+		
+		return this.experimentResultsCollection.get(experimentResultsCollection.size() - 1);
+		
+	}
+	
+	public TSPExperimentResults getNewExperimentResult() {
+		
+		TSPExperimentResults newExperimentResult = new TSPExperimentResults();
+		this.addExperimentResult(newExperimentResult);
+		
+		return this.experimentResultsCollection.get(experimentResultsCollection.size() - 1);
+	}
+	
+	public ArrayList<TSPExperimentResults> getExperimentResultsCollection() {
+		return experimentResultsCollection;
+	}
+	
+	public void addExperimentResult(TSPExperimentResults newResult) {
+		this.experimentResultsCollection.add(newResult);
+	}
+	
+	public ArrayList<Integer> getGenerationsRangeCollection() {
+		return (ArrayList<Integer>) IntStream.rangeClosed(1, this.getExperimentGenerations()).boxed().collect(Collectors.toList());
 	}
 
 	@Override
 	public String toString() {
 		return "TSPExperiment\n\nexperimentName=" + experimentName + "\n\ndate="
 				+ new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date())
-				+ "\n\nexperimentResults=" + experimentResults.toString()
+				//+ "\n\nexperimentResults=" + experimentResults.toString()
 				+ "\n\nexperimentGenerations=" + experimentGenerations 
 				+ "\n\nnoOfLocations=" + noOfLocations + "\n\nmutationSettings="
 				+ mutationSettings.toString() + "\n\ncrossoverSettings=" + crossoverSettings.toString()
