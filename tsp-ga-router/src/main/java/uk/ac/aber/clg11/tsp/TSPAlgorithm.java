@@ -1,15 +1,18 @@
 package uk.ac.aber.clg11.tsp;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import uk.ac.aber.clg11.tsp.TSPAlgorithm.CycleCrossoverItem;
 import uk.ac.aber.clg11.tsp.ga.GAGene;
 
+/**
+ * Primary GA class providing implementations for common GA operators (swap mutation, order-one crossover, cycle crossover, tournament selection, RWS selection and SUS selection).
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ *
+ */
 public class TSPAlgorithm {
 
 	private double mutationRate;
@@ -21,6 +24,7 @@ public class TSPAlgorithm {
 	private String crossoverMethodType;
 
 	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType) {
+
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.selectionMethodType = selectionMethodType.toLowerCase();
@@ -30,6 +34,7 @@ public class TSPAlgorithm {
 	}
 
 	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType, int tournamentSize) {
+		
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.selectionMethodType = selectionMethodType.toLowerCase();
@@ -40,6 +45,7 @@ public class TSPAlgorithm {
 	}
 
 	public TSPAlgorithm(double mutationRate, double crossoverRate, String selectionMethodType, String crossoverMethodType, int tournamentSize, boolean useSingleChild, boolean useElitism) {
+		
 		this.mutationRate = mutationRate;
 		this.crossoverRate = crossoverRate;
 		this.selectionMethodType = selectionMethodType.toLowerCase();
@@ -70,48 +76,44 @@ public class TSPAlgorithm {
 		TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(index); 
 
 		double partialSum = currentSelectedRoute.getFitness();
-
+		
+		double[] pointers = new double[noOfIndividuals];
+		
 		for (int i = 0; i < noOfIndividuals; i++) {
-
+			
 			double pointer = (startLoc + i) * pointerDistance;
-
-			if (partialSum >= pointer) {
-
-				selectedRoutes.add(currentSelectedRoute);
-
-			} else {
-
-
-				for (++index; index < currentPopulation.getPopulationSize(); index++) {
-
-					currentSelectedRoute = currentPopulation.getRouteAtIndex(index);
-					partialSum += currentSelectedRoute.getFitness();
-
-					if(partialSum >= pointer) {
-
-						selectedRoutes.add(currentSelectedRoute);
-						break;
-
-					}
-				}
-			}
-
-			//currentSelectedRoute = null;
+			
+			pointers[i] = pointer;
+			
 		}
 
 
-
-		//		double[] pointers = new double[noOfIndividuals];
-		//				
-		//		for (int i = 0; i < noOfIndividuals; i++) {
-		//			
-		//			double pointer = startLoc + i * pointerDistance;
-		//			
-		//			pointers[i] = pointer;
-		//			
-		//		}
-		//		
-		//		selectedRoutes = test1(currentPopulation, pointers);
+//		for (int i = 0; i < noOfIndividuals; i++) {
+//
+//			double pointer = (startLoc + i) * pointerDistance;
+//
+//			if (partialSum >= pointer) {
+//
+//				selectedRoutes.add(currentSelectedRoute);
+//
+//			} else {
+//
+//				for (++index; index < currentPopulation.getPopulationSize(); index++) {
+//
+//					currentSelectedRoute = currentPopulation.getRouteAtIndex(index);
+//					partialSum += currentSelectedRoute.getFitness();
+//
+//					if(partialSum >= pointer) {
+//
+//						selectedRoutes.add(currentSelectedRoute);
+//						break;
+//
+//					}
+//				}
+//			}
+//		}
+		
+		selectedRoutes = test1(currentPopulation, pointers);
 
 		if (selectedRoutes.isEmpty()) {
 			throw new Exception("Something went very wrong here. - No route has been selected!");
@@ -123,14 +125,19 @@ public class TSPAlgorithm {
 	public ArrayList<TSPRoute> test1 (TSPPopulation currentPopulation, double[] points) {
 
 		ArrayList<TSPRoute> keep = new ArrayList<>();
-
-		double partialSum = 0.0;
+		
 		int index = 0;
-
+		
+		TSPRoute currentSelectedRoute = currentPopulation.getRouteAtIndex(index); 
+		
+		double partialSum = currentSelectedRoute.getFitness();
+		
+		index++;
+		
 		for (double p : points)
 		{
 
-			while (partialSum < p) {
+			while (partialSum < p && (index < currentPopulation.getPopulationSize())) {
 				partialSum += currentPopulation.getRouteAtIndex(index).getFitness();
 				index++;
 			}
@@ -299,12 +306,8 @@ public class TSPAlgorithm {
 				int randomSelectionIndex1 = random.nextInt(parent1.getSize());
 				int randomSelectionIndex2 = random.nextInt(parent1.getSize());
 
-				// Make sure both random indexes are not the same
-				// (at the same time we also ensure that the largest possible
-				// index
-				// cannot be used as the start index - Will always be larger
-				// than
-				// the other ransdomly selected value.)
+				// Make sure both random indexes are not the same.
+				// (at the same time we also ensure that the largest possible index cannot be used as the start index - Will always be larger than the other randomly selected value.)
 				// Could also achieve this by using the code here:
 				// http://stackoverflow.com/a/11784059
 				while (randomSelectionIndex1 == randomSelectionIndex2) {
@@ -356,7 +359,7 @@ public class TSPAlgorithm {
 
 		} else {
 
-			// If we get to this point, we have determined that we shouldn't be performing crossover on this iteration.
+			// If we get to this point, we have determined that we shouldn't be performing crossover for this iteration.
 			// Therefore, simply return the two original parents unchanged.
 			routes.add(parent1);
 			routes.add(parent2);

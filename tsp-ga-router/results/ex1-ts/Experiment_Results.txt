@@ -2,7 +2,7 @@ TSPExperiment
 
 experimentName=ex1-ts
 
-date=06_12_2015_18_21_21_984
+date=06_12_2015_22_06_53_904
 
 experimentGenerations=500
 

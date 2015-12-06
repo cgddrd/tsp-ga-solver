@@ -9,6 +9,12 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+/**
+ * Represents an individual TSP-GA experiment. Holds all configuration settings and results associated with an individual experiment.
+ *
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ *
+ */
 public class TSPExperiment {
 
 	private String experimentName = "TSPExperiment_"
@@ -25,9 +31,8 @@ public class TSPExperiment {
 	private TSPCrossoverSettings crossoverSettings = new TSPCrossoverSettings();
 	private TSPSelectionSettings selectionSettings = new TSPSelectionSettings();
 	private TSPPopulationSettings populationSettings = new TSPPopulationSettings();
-	//private TSPExperimentResults experimentResults = new TSPExperimentResults();
 	
-	private ArrayList<TSPExperimentResults> experimentResultsCollection = new ArrayList<>();
+	private ArrayList<TSPExperimentResult> experimentResultsCollection = new ArrayList<>();
 
 	public TSPExperiment() {
 
@@ -36,6 +41,187 @@ public class TSPExperiment {
 	public TSPExperiment(String experimentName, int generationNumber) {
 		setExperimentName(experimentName);
 		setExperimentGenerations(generationNumber);
+	}
+	
+	/**
+	 * Returns the overall fittest TSPRoute across all runs of the current experiment.
+	 * @return TSPRoute holding the greatest overall fitness across all experiment runs.
+	 */
+	public TSPRoute getFittestRouteAllRuns() {
+		
+		int overallBestDistance = Integer.MAX_VALUE;
+		
+		if (this.overallFittestRoute == null) {
+			
+			for (TSPExperimentResult currentResult : this.experimentResultsCollection) {
+				
+				if (currentResult.getCurrentFittestCandidate().getRouteDistance() <= overallBestDistance) {
+					
+					this.overallFittestRoute = currentResult.getCurrentFittestCandidate();
+					
+				}
+				
+			}
+			
+		}
+		
+		return overallFittestRoute;
+	}
+	
+	/**
+	 * Returns the greatest overall distance from inspecting all runs of the current experiment.
+	 * @return The greatest overall distance across all experiment runs.
+	 */
+	public int getBestDistanceAllRuns() {
+		
+		if (this.overallBestDistance == Integer.MAX_VALUE) {
+			
+			for (TSPExperimentResult currentResult : this.experimentResultsCollection) {
+				
+				if (currentResult.getBestDistance() <= this.overallBestDistance) {
+					
+					this.overallBestDistance = currentResult.getBestDistance();
+					
+				}
+				
+			}
+
+		}
+		
+		return overallBestDistance;
+	}
+	
+	/**
+	 * Returns a collection of average best distances for each generation.
+	 * @return Collection of average best distances for each generation.
+	 */
+	public ArrayList<Integer> getBestDistanceAveragePerGeneration() {
+		
+		ArrayList<Integer> experimentRunsBestOverallDistanceAverages = new ArrayList<>();
+		
+		for (int i = 0; i < this.getExperimentGenerations(); i++) {
+			
+			int sumGenerationDistances = 0;
+			
+			for (TSPExperimentResult currentResult : this.getExperimentResultsCollection()) {
+				
+				sumGenerationDistances += currentResult.getExperimentBestDistances().get(i);
+				
+			}
+			
+			experimentRunsBestOverallDistanceAverages.add(sumGenerationDistances / this.getExperimentRuns());
+			
+		}
+		
+		return experimentRunsBestOverallDistanceAverages;
+		
+	}
+	
+	/**
+	 * Returns a collection of average average distances for each generation.
+	 * @return Collection of average distances for each generation.
+	 */
+	public ArrayList<Integer> getAverageDistanceAveragePerGeneration() {
+		
+		ArrayList<Integer> experimentRunsAverageDistanceAverages = new ArrayList<>();
+		
+		for (int i = 0; i < this.experimentGenerations; i++) {
+			
+			int sumGenerationAverages = 0;
+			
+			for (TSPExperimentResult currentResult : this.getExperimentResultsCollection()) {
+				
+				sumGenerationAverages += currentResult.getExperimentAverageDistances().get(i);
+				
+			}
+			
+			experimentRunsAverageDistanceAverages.add(sumGenerationAverages / this.getExperimentRuns());
+			
+		}
+		
+		return experimentRunsAverageDistanceAverages;
+		
+	}
+	
+	/**
+	 * Calculates the best average distance across all experiment runs and generations.
+	 * @return The best average distance across all experiment runs and generations.
+	 */
+	public int getAverageBestDistanceAllRuns() {
+		
+		int experimentOverallAverageBestDistance = 0;
+		
+		for (Integer averageBestDistance: this.getBestDistanceAveragePerGeneration()) {
+			
+			experimentOverallAverageBestDistance += averageBestDistance;
+			
+		}
+		
+		return experimentOverallAverageBestDistance / this.getBestDistanceAveragePerGeneration().size();
+	}
+	
+	/**
+	 * Calculates the average duration for the GA to complete across all experiment runs.
+	 * @return The average duration (nanoseconds) for the GA to complete across all experiment runs.
+	 */
+	public long getAverageDurationAllRuns() {
+		
+		long experimentAverageDuration = 0;
+		
+		for (TSPExperimentResult currentResult: this.getExperimentResultsCollection()) {
+			
+			experimentAverageDuration += currentResult.getExperimentDuration();
+			
+		}
+		
+		return experimentAverageDuration / this.getExperimentResultsCollection().size();
+		
+	}
+	
+	/**
+	 * Represents the average duration for the GA to complete across all experiment runs as a timestamp.
+	 * @return Timestamp representing the average duration for the GA to complete across all experiment runs.
+	 */
+	public String getAverageDurationToString() {
+		
+		return DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(getAverageDurationAllRuns()), "HH:mm:ss.SSS");
+		
+	}
+	
+	/**
+	 * Returns a collection of all initial fittest candidates across all experiment runs.
+	 * @return Collection of initial fittest candidates across all experiment runs.
+	 */
+	public ArrayList<TSPRoute> getInitialFittestCandidatesAllRuns() {
+		
+		ArrayList<TSPRoute> experimentOriginalFittestCandidates = new ArrayList<>();
+		
+		for (TSPExperimentResult currentResult: this.getExperimentResultsCollection()) {
+			
+			experimentOriginalFittestCandidates.add(currentResult.getOriginalFittestCandidate());
+			
+		} 
+		
+		return experimentOriginalFittestCandidates;
+		
+	}
+	
+	/**
+	 * Calculates the average initial best solution distance across all experiment runs and generations.
+	 * @return The average initial best solution distance across all experiment runs and generations.
+	 */
+	public int getAverageInitialDistanceAllRuns() {
+		
+		int experimentOverallAverageOriginalDistance = 0;
+		
+		for (TSPRoute originalFittestCandidate: getInitialFittestCandidatesAllRuns()) {
+			
+			experimentOverallAverageOriginalDistance += originalFittestCandidate.getRouteDistance();
+			
+		}
+		
+		return experimentOverallAverageOriginalDistance / getInitialFittestCandidatesAllRuns().size();
+		
 	}
 
 	public void setExperimentName(String experimentName) {
@@ -85,74 +271,16 @@ public class TSPExperiment {
 	public TSPPopulationSettings getPopulationSettings() {
 		return populationSettings;
 	}
-	
-	public TSPRoute getOverallFittestRoute() {
-		
-		int overallBestDistance = Integer.MAX_VALUE;
-		
-		if (this.overallFittestRoute == null) {
-			
-			for (TSPExperimentResults currentResult : this.experimentResultsCollection) {
-				
-				if (currentResult.getCurrentFittestCandidate().getRouteDistance() <= overallBestDistance) {
-					
-					this.overallFittestRoute = currentResult.getCurrentFittestCandidate();
-					
-				}
-				
-			}
-			
-		}
-		
-		return overallFittestRoute;
-	}
-	
-	public int getBestOverallDistance() {
-		
-		if (this.overallBestDistance == Integer.MAX_VALUE) {
-			
-			for (TSPExperimentResults currentResult : this.experimentResultsCollection) {
-				
-				if (currentResult.getBestDistance() <= this.overallBestDistance) {
-					
-					this.overallBestDistance = currentResult.getBestDistance();
-					
-				}
-				
-			}
 
-		}
-		
-		return overallBestDistance;
-	}
-
-//	public TSPExperimentResults getExperimentResults() {
-//		return experimentResults;
-//	}
-//
-//	public void setExperimentResults(TSPExperimentResults experimentResults) {
-//		this.experimentResults = experimentResults;
-//	}
-	
-	public TSPExperimentResults getCurrentExperimentResult() {
-		
-		return this.experimentResultsCollection.get(experimentResultsCollection.size() - 1);
-		
+	public TSPExperimentResult createNewExperimentResult() {
+		return new TSPExperimentResult();
 	}
 	
-	public TSPExperimentResults getNewExperimentResult() {
-		
-		TSPExperimentResults newExperimentResult = new TSPExperimentResults();
-		this.addExperimentResult(newExperimentResult);
-		
-		return this.experimentResultsCollection.get(experimentResultsCollection.size() - 1);
-	}
-	
-	public ArrayList<TSPExperimentResults> getExperimentResultsCollection() {
+	public ArrayList<TSPExperimentResult> getExperimentResultsCollection() {
 		return experimentResultsCollection;
 	}
 	
-	public void addExperimentResult(TSPExperimentResults newResult) {
+	public void addExperimentResult(TSPExperimentResult newResult) {
 		this.experimentResultsCollection.add(newResult);
 	}
 	
@@ -164,21 +292,26 @@ public class TSPExperiment {
 	public String toString() {
 		return "TSPExperiment\n\nexperimentName=" + experimentName + "\n\ndate="
 				+ new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss_SSS").format(new Date())
-				//+ "\n\nexperimentResults=" + experimentResults.toString()
 				+ "\n\nexperimentGenerations=" + experimentGenerations 
 				+ "\n\nnoOfLocations=" + noOfLocations + "\n\nmutationSettings="
 				+ mutationSettings.toString() + "\n\ncrossoverSettings=" + crossoverSettings.toString()
 				+ "\n\nselectionSettings=" + selectionSettings.toString() + "\n\npopulationSettings="
 				+ populationSettings.toString();
 	}
-
-	public class TSPExperimentResults {
+	
+	/**
+	 * Nested class representing the collection of results for a given TSPExperiment.
+	 * @author Connor Goddard (clg11@aber.ac.uk)
+	 *
+	 */
+	public class TSPExperimentResult {
 
 		private long experimentDuration;
 		private String experimentDurationString;
 		private double averageFitness = -1;
 		private double bestFitness = -1;
 		private int bestDistance = -1;
+		
 		private TSPRoute originalFittestCandidate = null;
 		private TSPRoute currentFittestCandidate = null;
 
@@ -187,7 +320,7 @@ public class TSPExperiment {
 		private ArrayList<Double> experimentBestFitnesses = new ArrayList<>();
 		private ArrayList<Double> experimentAverageFitnesses = new ArrayList<>();
 		
-		public TSPExperimentResults() {
+		public TSPExperimentResult() {
 		}
 		
 		@Override
@@ -282,10 +415,17 @@ public class TSPExperiment {
 		}
 
 	}
-
+	
+	/**
+	 * Nested class representing the available settings for the GA mutation operator.
+	 * @author Connor Goddard (clg11@aber.ac.uk)
+	 *
+	 */
 	public class TSPMutationSettings {
-
+		
+		// We only have one mutation operator, but include this property in case we add more in future.
 		private String mutationMethod = "swap";
+		
 		private Double mutationRate;
 
 		private TSPMutationSettings() {
@@ -314,10 +454,17 @@ public class TSPExperiment {
 		}
 
 	}
-
+	
+	/**
+	 * Nested class representing the available settings for the GA crossover operator.
+	 * @author Connor Goddard (clg11@aber.ac.uk)
+	 *
+	 */
 	public class TSPCrossoverSettings {
-
+		
+		// Default to Tournament selection if nothing else is specified.
 		private String crossoverMethod = "ordered";
+		
 		private Double crossoverRate;
 		private Boolean returnSingleChild = false;
 
@@ -348,10 +495,17 @@ public class TSPExperiment {
 		}
 
 	}
-
+	
+	/**
+	 * Nested class representing the available settings for the GA selection operator.
+	 * @author Connor Goddard (clg11@aber.ac.uk)
+	 *
+	 */
 	public class TSPSelectionSettings {
-
+		
+		// Default to Tournament selection if nothing else is specified.
 		private String selectionMethod = "tournament";
+		
 		private Integer tournamentSize;
 		private Boolean useElitism = true;
 		private Boolean returnSingleChild = false;
@@ -399,7 +553,12 @@ public class TSPExperiment {
 		}
 
 	}
-
+	
+	/**
+	 * Nested class representing the available settings for GA population initialisation.
+	 * @author Connor Goddard (clg11@aber.ac.uk)
+	 *
+	 */
 	public class TSPPopulationSettings {
 
 		private int populationSize;
