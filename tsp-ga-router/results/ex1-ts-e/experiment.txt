@@ -1,16 +1,16 @@
 TSPExperiment
 
-experimentName=ex3-ts-25%-e
+experimentName=ex1-ts-e
 
-date=05_12_2015_18_55_53_617
+date=06_12_2015_16_23_49_623
 
-experimentResults=TSPExperimentResults [experimentDuration=135799817, experimentDurationString=null, averageFitness=3.532247332354569E-4, bestFitness=5.633802816901409E-4, bestDistance=1775]
+experimentResults=TSPExperimentResults [experimentDuration=362037640, experimentDurationString=null, averageFitness=0.0010113799001861903, bestFitness=0.0010718113612004287, bestDistance=933]
 
 experimentGenerations=500
 
 noOfLocations=30
 
-mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.25 ]
+mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.015 ]
 
 crossoverSettings=TSPCrossoverSettings [crossoverMethod=ordered, crossoverRate=0.75, returnSingleChild=false]
 

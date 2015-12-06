@@ -40,7 +40,9 @@ import uk.ac.aber.clg11.tsp.exception.TSPPlotterException;
  * Plots TSP status and results to graphs that are subsequently displayed on
  * screen, or exported to file.
  * 
- * @author connorgoddard
+ * Makes extensive use of the GRAL open-source plotting library available at: http://trac.erichseifert.de/gral/
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
  *
  */
 public class TSPPlotter extends JFrame {
@@ -49,8 +51,11 @@ public class TSPPlotter extends JFrame {
 	private DataTable data;
 	private InteractivePanel panel;
 
-	private int xAxisScaleRange = -1;
-	private int yAxisScaleRange = -1;
+	private double xAxisMinScaleRange = -1;
+	private double yAxisMinScaleRange = -1;
+	
+	private double xAxisMaxScaleRange = -1;
+	private double yAxisMaxScaleRange = -1;
 
 	private boolean xAxisHide = false;
 	private boolean yAxisHide = false;
@@ -63,6 +68,9 @@ public class TSPPlotter extends JFrame {
 
 	private Color lineColour = new Color(0, 0, 0);
 	private Color pointColour = new Color(255, 0, 0);
+	
+	private Color[] lineColours = new Color[] {new Color(255,0,0)};
+	private Color[] pointColours = new Color[] {new Color(0,0,0)};
 
 	private boolean linesHide = false;
 	private boolean pointsHide = false;
@@ -81,7 +89,7 @@ public class TSPPlotter extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(600, 400);
 
-		data = new DataTable(Integer.class, Integer.class);
+		data = new DataTable(Double.class, Double.class);
 
 		this.plot = new XYPlot(data);
 
@@ -93,23 +101,25 @@ public class TSPPlotter extends JFrame {
 
 	}
 
-	private TSPPlotter(boolean displayGUI, int xAxisScaleRange, int yAxisScaleRange, boolean xAxisHide, boolean yAxisHide,
+	private TSPPlotter(boolean displayGUI, double xAxisMinScaleRange, double yAxisMinScaleRange, double xAxisMaxScaleRange, double yAxisMaxScaleRange, boolean xAxisHide, boolean yAxisHide,
 			String xAxisTitle, String yAxisTitle, boolean pointsHide, boolean linesHide, boolean legendHide, boolean randomPointColour, boolean randomLineColour,
-			Color pointColour, Color lineColour, String[] seriesLabels, String plotTitle) {
+			Color[] pointColours, Color[] lineColours, String[] seriesLabels, String plotTitle) {
 
 		this();
 		
 		this.displayGUI = displayGUI;
-		this.xAxisScaleRange = xAxisScaleRange;
-		this.yAxisScaleRange = yAxisScaleRange;
+		this.xAxisMinScaleRange = xAxisMinScaleRange;
+		this.yAxisMinScaleRange = yAxisMinScaleRange;
+		this.xAxisMaxScaleRange = xAxisMaxScaleRange;
+		this.yAxisMaxScaleRange = yAxisMaxScaleRange;
 		this.xAxisHide = xAxisHide;
 		this.yAxisHide = yAxisHide;
 		this.xAxisTitle = xAxisTitle;
 		this.yAxisTitle = yAxisTitle;
 		this.randomLineColour = randomLineColour;
 		this.randomPointColour = randomPointColour;
-		this.lineColour = lineColour;
-		this.pointColour = pointColour;
+		this.pointColours = pointColours;
+		this.lineColours = lineColours;
 		this.pointsHide = pointsHide;
 		this.linesHide = linesHide;
 		this.legendHide = legendHide;
@@ -119,9 +129,13 @@ public class TSPPlotter extends JFrame {
 		this.setupPlot();
 
 	}
-
+	
+	/**
+	 * Initialises and configures for current plot ready for generation. 
+	 */
 	public void setupPlot() {
-
+		
+		// Set the spacing along the outside of the plotting space (required to display axis values, titles etc.)
 		plot.setInsets(new Insets2D.Double(20, 70, 60, 40));
 
 		if (xAxisHide) {
@@ -131,9 +145,11 @@ public class TSPPlotter extends JFrame {
 
 		} else {
 
-			if (xAxisScaleRange != -1) {
-				plot.getAxis(XYPlot.AXIS_X).setRange(0, this.xAxisScaleRange);
+			if (xAxisMinScaleRange != -1 && xAxisMaxScaleRange != -1) {
 				plot.getAxis(XYPlot.AXIS_X).setAutoscaled(false);
+				plot.getAxis(XYPlot.AXIS_X).setRange(this.xAxisMinScaleRange, this.xAxisMaxScaleRange);
+			} else {
+				plot.getAxis(XYPlot.AXIS_X).setAutoscaled(true);
 			}
 
 			plot.getAxisRenderer(XYPlot.AXIS_X).setIntersection(-Double.MAX_VALUE);
@@ -147,16 +163,47 @@ public class TSPPlotter extends JFrame {
 
 		} else {
 
-			if (yAxisScaleRange != -1) {
-				plot.getAxis(XYPlot.AXIS_Y).setRange(0, this.yAxisScaleRange);
+			if (yAxisMinScaleRange != -1 && yAxisMaxScaleRange != -1) {
 				plot.getAxis(XYPlot.AXIS_Y).setAutoscaled(false);
+				plot.getAxis(XYPlot.AXIS_Y).setRange(this.yAxisMinScaleRange, this.yAxisMaxScaleRange);
+			} else {
+				plot.getAxis(XYPlot.AXIS_Y).setAutoscaled(true);
 			}
 			
 			plot.getAxisRenderer(XYPlot.AXIS_Y).setIntersection(-Double.MAX_VALUE);
 
 		}
 		
-		plot.setLegendVisible(!this.legendHide);
+		if (pointsHide) {
+			plot.setPointRenderer(data, null);
+		} else {
+			Color pointColour = this.randomPointColour ? generateRandomColour() : this.pointColours[0];
+			plot.getPointRenderer(data).setColor(pointColour);
+		}
+
+		if (linesHide) {
+			plot.setLineRenderer(data, null);
+		} else {
+			Color lineColour = this.randomLineColour ? generateRandomColour() : this.lineColours[0];
+			plot.setLineRenderer(data, lines);
+			plot.getLineRenderer(data).setColor(lineColour);
+		}
+		
+		if (xAxisTitle != null) {
+			plot.getAxisRenderer(XYPlot.AXIS_X).setLabel(xAxisTitle);
+		}
+		
+		if (yAxisTitle != null) {
+			plot.getAxisRenderer(XYPlot.AXIS_Y).setLabel(yAxisTitle);
+		}
+		
+		if (plotTitle != null) {
+			plot.getTitle().setText(plotTitle);
+		}
+
+		
+		// If we have no series labels defined, we don't want to display the legend regardless of the user's choice on whether to display it or not.
+		plot.setLegendVisible(this.seriesLabels != null ? (!this.legendHide) : false);
 		
 		// Move the legend to the right-hand side of the plot.
 		plot.getLegend().setAlignmentX(1.0);
@@ -185,6 +232,11 @@ public class TSPPlotter extends JFrame {
 		this.redrawPlot(pointsHide, linesHide, displayGUI);
 	}
 
+	/**
+	 * Exports a the current plot to a PNG image in the specified location.
+	 * @param exportFilePath The path to export the PNG file to.
+	 * @param fileName Name of the new PNG file.
+	 */
 	public void exportToFile(String exportFilePath, String fileName) {
 		
 		File file = new File(FilenameUtils.concat(exportFilePath, fileName));
@@ -196,53 +248,79 @@ public class TSPPlotter extends JFrame {
 		}
 		
 		try {
+			
+			// DrawableWriterFactory is a function defined within the GRAL library.
+			// There is currently an issue with rendering plots to JPG, need to investigate further.
 			DrawableWriterFactory.getInstance().get("image/png").write(plot, new FileOutputStream(file.getCanonicalPath()), 600, 400);
-			//DrawableWriterFactory.getInstance().get("image/svg+xml").write(plot, new FileOutputStream(file.getCanonicalPath()), 200, 200);
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
-
+	
+	/**
+	 * Re-draws the plot using the current data contained within the internal DataTable structure.
+	 * @param hidePoints Determines whether to hide the data points within the plot.
+	 * @param hideLines Determines whether to hide the lines connecting each data point within the plot.
+	 * @param displayGUI Determines whether to display the plot to the user wihtin a new JFrame GUI window.
+	 */
 	private void redrawPlot(boolean hidePoints, boolean hideLines, boolean displayGUI) {
-
+		
+		this.pointsHide = hidePoints;
+		this.linesHide = hideLines;
+		
 		if (data.getColumnCount() > 2) {
 			
 			ArrayList<DataSeries> dataSeriesCollection = new ArrayList<DataSeries>();
 			
 			for (int i = 1; i < data.getColumnCount(); i++) {
 				
-				dataSeriesCollection.add(new DataSeries(this.seriesLabels[i], data, 0, i));
+				if (seriesLabels != null) {
+					dataSeriesCollection.add(new DataSeries(this.seriesLabels[i], data, 0, i));
+				} else {
+					dataSeriesCollection.add(new DataSeries("", data, 0, i));
+				}
 				
 			}
 			
 			plot = new XYPlot(dataSeriesCollection.toArray(new DataSeries[dataSeriesCollection.size()]));
 			
-//			PointRenderer points1 = new DefaultPointRenderer2D();
-//			points1.setShape(new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
-//			points1.setColor(new Color(0.0f, 0.3f, 1.0f, 0.3f));
-//			plot.setPointRenderer(test.get(0), points1);
+			for (int i = 0; i < dataSeriesCollection.size(); i++) {
+				
+				if (pointsHide) {
+					plot.setPointRenderer(dataSeriesCollection.get(i), null);
+				} else {
+					
+					PointRenderer newPointsRenderer = new DefaultPointRenderer2D();
+					
+					if (this.randomPointColour) {
+						newPointsRenderer.setColor(generateRandomColour());
+					} else {
+						newPointsRenderer.setColor(this.pointColours[i] != null ? this.pointColours[i] : this.pointColours[0]);
+					}
+					
+					plot.setPointRenderer(dataSeriesCollection.get(i), newPointsRenderer);
+				}
+				
+				if (linesHide) {
+					plot.setLineRenderer(dataSeriesCollection.get(i), null);
+				} else {
+					
+					LineRenderer newLineRenderer = new DefaultLineRenderer2D();
+					
+					if (this.randomLineColour) {
+						newLineRenderer.setColor(generateRandomColour());
+					} else {
+						newLineRenderer.setColor(this.lineColours[i] != null ? this.lineColours[i] : this.lineColours[0]);
+					}
+					
+					plot.setLineRenderer(dataSeriesCollection.get(i), newLineRenderer);
+				}
+				
+			}
 			
-			plot.setPointRenderer(dataSeriesCollection.get(0), null);
-			plot.setPointRenderer(dataSeriesCollection.get(1), null);
-			
-			LineRenderer line1 = new DefaultLineRenderer2D();
-			//Color lineColour = this.randomLineColour ? generateRandomColour() : this.lineColour;
-			line1.setColor(new Color(255, 0, 0));
-			plot.setLineRenderer(dataSeriesCollection.get(0), line1);
-			
-			LineRenderer line2 = new DefaultLineRenderer2D();
-			line2.setColor(new Color(0,0,255));
-			plot.setLineRenderer(dataSeriesCollection.get(1), line2);
-			
-//			PointRenderer points3 = new DefaultPointRenderer2D();
-//			points3.setShape(new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0));
-//			points3.setColor(new Color(0.2f, 0.6f, 1.0f, 0.3f));
-//			plot.setPointRenderer(test.get(1), points3);
-			
-			this.setupPlot();
-			
+		
 			double minYValue = Double.MAX_VALUE;
 			double maxYValue = Double.MIN_VALUE;
 			
@@ -258,44 +336,17 @@ public class TSPPlotter extends JFrame {
 				
 			}
 			
-			plot.getAxis(XYPlot.AXIS_Y).setRange(minYValue - (minYValue* 0.1), maxYValue);
+			this.setYAxisScaleRange(minYValue - (minYValue* 0.1), maxYValue);
 			
 		} else {
 			
 			plot.clear();
 			plot.add(data);
-			
-			if (hidePoints) {
-				plot.setPointRenderer(data, null);
-			} else {
-				Color pointColour = this.randomPointColour ? generateRandomColour() : this.pointColour;
-				plot.getPointRenderer(data).setColor(pointColour);
-			}
-
-			if (hideLines) {
-				plot.setLineRenderer(data, null);
-			} else {
-				Color lineColour = this.randomLineColour ? generateRandomColour() : this.lineColour;
-				plot.setLineRenderer(data, lines);
-				plot.getLineRenderer(data).setColor(lineColour);
-			}
-			
-			plot.getAxis(XYPlot.AXIS_Y).setRange(data.getColumn(1).getStatistics(Statistics.MIN) - (data.getColumn(1).getStatistics(Statistics.MIN) * 0.1), 
-					data.getColumn(1).getStatistics(Statistics.MAX));
+				
 		}
 		
-		if (xAxisTitle != null) {
-			plot.getAxisRenderer(XYPlot.AXIS_X).setLabel(xAxisTitle);
-		}
+		this.setupPlot();
 		
-		if (yAxisTitle != null) {
-			plot.getAxisRenderer(XYPlot.AXIS_Y).setLabel(yAxisTitle);
-		}
-		
-		if (plotTitle != null) {
-			plot.getTitle().setText(plotTitle);
-		}
-
 		if (displayGUI) {
 			getContentPane().removeAll();
 			getContentPane().add(panel);
@@ -308,7 +359,11 @@ public class TSPPlotter extends JFrame {
 		}
 
 	}
-
+	
+	/**
+	 * Generates a new Color set to random RGB values.
+	 * @return A new 'Color' object set to randomly assigned RGB values.
+	 */
 	private Color generateRandomColour() {
 
 		Random rand = new Random();
@@ -320,31 +375,53 @@ public class TSPPlotter extends JFrame {
 		return new Color(r, g, b);
 
 	}
-
-	public void updateData(ArrayList<TSPLocation> locations) {
-
-		this.data = new DataTable(Integer.class, Integer.class);
-
-		for (TSPLocation loc : locations) {
-
-			data.add(loc.xCoord, loc.yCoord);
+	
+	/**
+	 * Convenience method for automatically plotting a graphical representation of a given TSP solution.
+	 * @param solutionLocations Collection of TSPLocation items to plot.
+	 * @throws TSPPlotterException
+	 */
+	public void plotTSPSolution(ArrayList<TSPLocation> solutionLocations) throws TSPPlotterException {
+		
+		ArrayList<Integer> xCoords = new ArrayList<Integer>();
+		ArrayList<Integer> yCoords = new ArrayList<Integer>();
+		
+		for (TSPLocation loc : solutionLocations) {
+			
+			xCoords.add(loc.xCoord);
+			yCoords.add(loc.yCoord);
 
 		}
 		
-		data.add(locations.get(0).xCoord, locations.get(0).yCoord);
-
+		// We need to make sure to append the starting location at the end of the route to complete the route.
+		TSPLocation startingLocation = solutionLocations.get(0);
+		
+		xCoords.add(startingLocation.xCoord);
+		yCoords.add(startingLocation.yCoord);
+		
+		// Update the internal data collection and render out the results.
+		this.updatePlotData(null, xCoords, yCoords);
+		this.generatePlot(false, false, false);
+		
 	}
 	
-	public void updateData(Class<? extends Comparable<?>> type, String[] seriesLabels, ArrayList<? extends Number>... seriesData) throws TSPPlotterException {
+	/**
+	 * Updates the internal DataTable structure representing the plot data. (Note: All numeric series values are converted to the 'Double' type prior to insertion into the internal DataTable structure)
+	 * @param seriesLabels Collection of String labels with an individual element referencing the matching element position within 'seriesData'
+	 * @param seriesData VarArgs collection of ArrayLists, with each ArrayList representing an individual column within the internal DataTable structure.
+	 * @throws TSPPlotterException
+	 */
+	public void updatePlotData(String[] seriesLabels, ArrayList<? extends Number>... seriesData) throws TSPPlotterException {
 
 		if (seriesData.length <= 0) {
 			throw new TSPPlotterException("Cannot plot with empty data source collections. Aborting.");
 		}
 		
-		if (seriesLabels.length != seriesData.length) {
+		if (seriesLabels != null && (seriesLabels.length != seriesData.length)) {
 			throw new TSPPlotterException("Mismatch in the number of labels specified for the number of series data collections. Aborting.");
 		}
 		
+		this.data = new DataTable(seriesData.length, Double.class);
 		int dataSourceLength = seriesData[0].size();
 		
 		for (int i = 1; i < seriesData.length; i++) {
@@ -353,21 +430,22 @@ public class TSPPlotter extends JFrame {
 				throw new TSPPlotterException("Data source sizes do not match. Aborting.");
 			}
 		}
-
-		this.data = new DataTable(seriesData.length, type);
 		
+		// Create a new row for each item in the specified column collections.
 		for (int j = 0; j < seriesData[0].size(); j++) {
 			
-			Comparable[] test = new Double[seriesData.length];
+			Comparable[] newSeriesRow = new Double[seriesData.length];
 			
+			// Set the value of each column along the row.
 			for(int i = 0; i < seriesData.length; i++) {
-				test[i] = (Comparable) seriesData[i].get(j).doubleValue();
+				newSeriesRow[i] = (Comparable) seriesData[i].get(j).doubleValue();
 			}
 			
-			data.add(test);
+			data.add(newSeriesRow);
 			
 		}
 		
+		// Update the labels for the new series (if applicable)
 		this.seriesLabels = seriesLabels;
 		
 	}
@@ -375,19 +453,34 @@ public class TSPPlotter extends JFrame {
 	public void setPlotTitle(String plotTitle) {
 		this.plotTitle = plotTitle;
 	}
+	
+	private void setXAxisScaleRange(double axisMin, double axisMax) {
+		
+		this.xAxisMinScaleRange = axisMin;
+		this.xAxisMaxScaleRange = axisMax;
+	}
+
+	private void setYAxisScaleRange(double axisMin, double axisMax) {
+		
+		this.yAxisMinScaleRange = axisMin;
+		this.yAxisMaxScaleRange = axisMax;
+	}
 
 	/**
-	 * 'Builder'-pattern implementation class providing a standardized mechanism
+	 * 'Builder' pattern implementation class providing a standardized mechanism
 	 * by which new 'TSPPlotter' instances can be created with the appropriate
 	 * optional parameters.
 	 * 
-	 * @author connorgoddard
+	 * @author Connor Goddard (clg11@aber.ac.uk)
 	 *
 	 */
 	public static class TSPPlotterBuilder {
 
-		private int xAxisScaleRange = -1;
-		private int yAxisScaleRange = -1;
+		private double xAxisMinScaleRange = -1;
+		private double yAxisMinScaleRange = -1;
+		
+		private double xAxisMaxScaleRange = -1;
+		private double yAxisMaxScaleRange = -1;
 
 		private boolean xAxisHide = false;
 		private boolean yAxisHide = false;
@@ -397,9 +490,9 @@ public class TSPPlotter extends JFrame {
 
 		private boolean randomPointColour = false;
 		private boolean randomLineColour = false;
-
-		private Color lineColour = new Color(0, 0, 0);
-		private Color pointColour = new Color(255, 0, 0);
+		
+		private Color[] lineColours = new Color[] {new Color(0,0,0)};
+		private Color[] pointColours = new Color[] {new Color(255,0,0)};
 
 		private boolean linesHide = false;
 		private boolean pointsHide = false;
@@ -418,8 +511,8 @@ public class TSPPlotter extends JFrame {
 
 		public TSPPlotter buildTSPPlotter() {
 
-			return new TSPPlotter(displayGUI, xAxisScaleRange, yAxisScaleRange, xAxisHide, yAxisHide, xAxisTitle, yAxisTitle, pointsHide, linesHide, legendHide,
-					randomPointColour, randomLineColour, pointColour, lineColour, seriesLabels, plotTitle);
+			return new TSPPlotter(displayGUI, xAxisMinScaleRange, yAxisMinScaleRange, xAxisMaxScaleRange, yAxisMaxScaleRange, xAxisHide, yAxisHide, xAxisTitle, yAxisTitle, pointsHide, linesHide, legendHide,
+					randomPointColour, randomLineColour, pointColours, lineColours, seriesLabels, plotTitle);
 
 		}
 
@@ -485,17 +578,17 @@ public class TSPPlotter extends JFrame {
 			return this;
 
 		}
+		
+		public TSPPlotterBuilder setPointColours(Color[] pointColours) {
 
-		public TSPPlotterBuilder setPointColour(Color pointColour) {
-
-			this.pointColour = pointColour;
+			this.pointColours = pointColours;
 			return this;
 
 		}
 
-		public TSPPlotterBuilder setLineColour(Color lineColour) {
+		public TSPPlotterBuilder setLineColours(Color[] lineColours) {
 
-			this.lineColour = lineColour;
+			this.lineColours = lineColours;
 			return this;
 
 		}
@@ -516,11 +609,21 @@ public class TSPPlotter extends JFrame {
 			return this;
 
 		}
+		
+		public TSPPlotterBuilder setXAxisRangeSettings(int axisMin, int axisMax) {
 
-		public TSPPlotterBuilder setAxisMaxRangeSettings(int xAxisMax, int yAxisMax) {
+			this.xAxisMinScaleRange = axisMin;
+			this.xAxisMaxScaleRange = axisMax;
 
-			this.xAxisScaleRange = xAxisMax;
-			this.yAxisScaleRange = yAxisMax;
+			// Return the current instance to allow for "method chaining".
+			return this;
+
+		}
+
+		public TSPPlotterBuilder setYAxisRangeSettings(int axisMin, int axisMax) {
+
+			this.yAxisMinScaleRange = axisMin;
+			this.yAxisMaxScaleRange = axisMax;
 
 			// Return the current instance to allow for "method chaining".
 			return this;

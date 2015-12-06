@@ -91,10 +91,12 @@ public class TSP {
 				experimentSettings.getExperimentResults().setOriginalFittestCandidate(originalFittestCandidate);
 				
 				// Plot the initial best TSP solution.
-				plotter = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setAxisMaxRangeSettings(200, 200).buildTSPPlotter();
+				plotter = new TSPPlotter.TSPPlotterBuilder().setDisplayGUI(false).setXAxisRangeSettings(0, 200).setYAxisRangeSettings(0, 200).buildTSPPlotter();
 				
-				plotter.updateData(originalFittestCandidate.getGenes());
-				plotter.generatePlot();
+				//plotter.updateData(originalFittestCandidate.getGenes());
+				//plotter.generatePlot();
+				
+				plotter.plotTSPSolution(originalFittestCandidate.getGenes());
 				plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "start.png");
 				
 			}
@@ -107,8 +109,10 @@ public class TSP {
 			if (j == (noOfExperimentRuns - 1)) {
 				
 				// Plot the final best TSP solution.
-				plotter.updateData(experimentSettings.getExperimentResults().getCurrentFittestCandidate().getGenes());
-				plotter.generatePlot();
+				//plotter.updateData(experimentSettings.getExperimentResults().getCurrentFittestCandidate().getGenes());
+				//plotter.generatePlot();
+				
+				plotter.plotTSPSolution(experimentSettings.getExperimentResults().getCurrentFittestCandidate().getGenes());
 				plotter.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "end.png");
 
 				io.exportExperimentParametersToFile(experimentSettings, FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "experiment.txt");
@@ -145,11 +149,11 @@ public class TSP {
 										  .setShowLegend(true)
 										  .setDisplayGUI(false)
 										  .setXAxisTitle("Generation")
+										  .setLineColours(new Color[] {new Color(255, 0, 0), new Color(0,0,255)})
 										  .setYAxisTitle("Distance (Fitness)")
-										  .setLineColour(new Color(255, 0, 0))
 										  .buildTSPPlotter();
 		
-		frame3.updateData(Double.class, new String[]{"Generations", "Best Distance", "Average Distance"}, generations, experimentBestDistanceAverages, experimentAverageDistanceAverages);
+		frame3.updatePlotData(new String[]{"Generations", "Best Distance", "Average Distance"}, generations, experimentBestDistanceAverages, experimentAverageDistanceAverages);
 
 		frame3.generatePlot(true, false, String.format("TSP-GA: S:%s, C:%s (%.3f), M:%s (%.3f)", StringUtils.capitalize(experimentSettings.getSelectionSettings().getSelectionMethod()),
 																								 StringUtils.capitalize(experimentSettings.getCrossoverSettings().getCrossoverMethod()), 
@@ -186,7 +190,6 @@ public class TSP {
 		frame3.exportToFile(FilenameUtils.concat(exportFileLocation, experimentSettings.getExperimentName()), "results.png");
 
 		System.out.println("COMPLETED: " + experimentSettings.getExperimentName());
-		//System.out.println("Average Initial Distance: " + experimentOverallAverageOriginalDistance);
 		System.out.println("Average Initial Distance: " + experimentOverallAverageOriginalDistance / noOfExperimentRuns);
 		System.out.println("Average Best Distance: " + (experimentOverallAverageBestDistance / experimentBestDistanceAverages.size()));
 		System.out.println("Overall Best Distance: " + experimentSettings.getExperimentResults().getBestDistance());

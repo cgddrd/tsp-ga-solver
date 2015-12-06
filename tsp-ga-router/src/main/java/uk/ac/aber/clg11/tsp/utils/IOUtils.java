@@ -27,10 +27,14 @@ import uk.ac.aber.clg11.tsp.TSPExperiment.TSPPopulationSettings;
 import uk.ac.aber.clg11.tsp.TSPExperiment.TSPSelectionSettings;
 import uk.ac.aber.clg11.tsp.exception.ConfigSettingMissingException;
 
+/**
+ * Provides common utility functions relating to the loading/parsing and exporting of experiment configuration, data and results files.
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ */
 public class IOUtils {
 
 	public IOUtils() {
-
 	}
 	
 	/**
@@ -151,6 +155,7 @@ public class IOUtils {
 						
 						sSettings.setSelectionMethod(selectionConfigAttributes.getNamedItem("method").getNodeValue());
 						
+						// Set a default value if none is provided within the config file.
 						sSettings.setTournamentSize(selectionConfigAttributes.getNamedItem("tournament_size") != null ? 
 														Integer.parseInt(selectionConfigAttributes.getNamedItem("tournament_size").getNodeValue()) : -1);
 										
@@ -247,6 +252,12 @@ public class IOUtils {
 		
 	}
 	
+	/**
+	 * Exports the settings and results of an experiment to a file.
+	 * @param experimentSettings The collection of settings and results related to the current experiment.
+	 * @param exportFilePath The parent file path to which the new file is to be saved within.
+	 * @param exportFileName The name of the new exported file.
+	 */
 	public void exportExperimentParametersToFile(TSPExperiment experimentSettings, String exportFilePath, String exportFileName) {
 		
 		File file = new File(FilenameUtils.concat(exportFilePath, exportFileName));

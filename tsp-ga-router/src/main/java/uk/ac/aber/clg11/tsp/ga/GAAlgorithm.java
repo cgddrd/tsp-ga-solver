@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Abstract class providing implementations for common GA operators (swap mutation, order-one crossover, cycle crossover, tournament selection, RWS selection and SUS selection).
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ */
 public abstract class GAAlgorithm {
 	
 	protected double mutationRate;

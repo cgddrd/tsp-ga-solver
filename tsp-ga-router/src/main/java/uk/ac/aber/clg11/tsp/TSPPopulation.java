@@ -5,8 +5,17 @@ import java.util.ArrayList;
 import uk.ac.aber.clg11.tsp.ga.GAChromosome;
 import uk.ac.aber.clg11.tsp.ga.GAPopulation;
 
+/**
+ * Provides a representation of an individual TSP population.
+ * 
+ * Extends the 'GAChromosome' abstract class.
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ *
+ */
 public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	
+	// Set the total population distance to -1 by default in order to ensure distance is calculated for the first time.
 	private int populationDistance = -1;
 	
 	public TSPPopulation(int populationSize) {
@@ -53,12 +62,12 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	@Override
 	public GAChromosome<Double, TSPLocation> getFittestCandidate() {
 		
-		// We need to make sure that we reset the current fittest to null, to prevent an out-of-date fittest candidate.
+		// We need to make sure that we reset the current fittest to null, to prevent an out-of-date fittest candidate from being returned.
 		this.currentFittestCandidate = null;
 		
 		for (TSPRoute currentCandidate : this.chromosomeCandidates) {
 			
-			// REMEMBER: The fitness function for a TSPRoute gets LARGER when the total distance gets SMALLER.
+			// The fitness score for a TSPRoute INCREASES as the total distance DECREASES.
 			if (this.currentFittestCandidate == null || currentCandidate.getFitness() >= currentFittestCandidate.getFitness()) {
 				
 				this.currentFittestCandidate = currentCandidate;
@@ -69,47 +78,55 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 		return this.currentFittestCandidate;
 		
 	}
-
+	
+	/**
+	 * Sums the combined distances for all TSPRoutes within the population.
+	 * @return The total distance for all TSPRoutes within the population.
+	 */
 	public Integer getPopulationDistanceSum() {
 		
 		if (this.populationDistance < 0) {
 			
-			int distanceSum = 0;
+			int distanceTotal = 0;
 			
-			for (TSPRoute current : this.chromosomeCandidates) {
-				distanceSum += current.getRouteDistance();
+			for (TSPRoute currentRoute : this.chromosomeCandidates) {
+				distanceTotal += currentRoute.getRouteDistance();
 			}
 			
-			this.populationDistance = distanceSum;
+			this.populationDistance = distanceTotal;
 		}
 		
 		return this.populationDistance;
 		
 	}
-
-	@Override
-	public Double getPopulationFitnessSum() {
-		
-		if (this.populationFitness == null) {
-			
-			Double fitnessSum = 0.0;
-			
-			for (TSPRoute current : this.chromosomeCandidates) {
-				fitnessSum += current.getFitness();
-			}
-			
-			this.populationFitness = fitnessSum;
-		}
-		
-		return this.populationFitness;
-		
-	}
 	
+	/**
+	 * Calculates the average distance across all TSPRoutes within the population.
+	 * @return The average distance across all TSPRoutes within the population.
+	 */
 	public Integer getPopulationDistanceAverage() {
 		
 		Integer populationDistanceSum = this.getPopulationDistanceSum();
 		
 		return populationDistanceSum / this.getPopulationSize();
+		
+	}
+	
+	@Override
+	public Double getPopulationFitnessSum() {
+		
+		if (this.populationFitness == null) {
+			
+			Double fitnessTotal = 0.0;
+			
+			for (TSPRoute currentRoute : this.chromosomeCandidates) {
+				fitnessTotal += currentRoute.getFitness();
+			}
+			
+			this.populationFitness = fitnessTotal;
+		}
+		
+		return this.populationFitness;
 		
 	}
 
@@ -124,20 +141,9 @@ public class TSPPopulation extends GAPopulation<Double, TSPLocation, TSPRoute> {
 	
 	@Override
 	public Double getPopulationFitnessMax() {
-		
+	
 		return this.getFittestCandidate().getFitness();
-		
-//		Double maxRouteFitness = 0.0;
-//		
-//		for (TSPRoute currentRoute : this.getRoutes()) {
-//			
-//			if (maxRouteFitness < currentRoute.getFitness()) {
-//				
-//				maxRouteFitness = currentRoute.getFitness();
-//				
-//			}
-//		}
-		
+
 	}
 
 }

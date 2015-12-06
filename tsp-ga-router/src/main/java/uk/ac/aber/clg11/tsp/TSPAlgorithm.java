@@ -464,7 +464,6 @@ public class TSPAlgorithm {
 	public void performSwapMutation(TSPRoute chromosome) {
 
 		// We use a swap mutation for PERUMUTATION REPRESENTATIONS.
-
 		Random random = new Random();
 		
 		ArrayList<TSPLocation> routeLocations = chromosome.getRouteLocations();
@@ -489,42 +488,6 @@ public class TSPAlgorithm {
 				
 			}
 		}
-
-//		if (random.nextDouble() <= this.mutationRate) {
-//
-//			int swapIndex1 = random.nextInt(chromosome.getSize());
-//			int swapIndex2 = random.nextInt(chromosome.getSize());
-//
-//			// Make sure the random indexes are not the same.
-//			while(swapIndex1 == swapIndex2) {
-//				swapIndex2 = random.nextInt(chromosome.getSize());
-//			}
-//
-//			TSPLocation test1 = chromosome.getRouteLocations().get(swapIndex1);
-//			TSPLocation test2 = chromosome.getRouteLocations().get(swapIndex2);
-//
-//			chromosome.getRouteLocations().set(swapIndex1, test2);
-//			chromosome.getRouteLocations().set(swapIndex2, test1);
-//
-//		}
-
-		// Loop through tour cities
-//		for(int tourPos1=0; tourPos1 < chromosome.getRouteSize(); tourPos1++){
-//			// Apply mutation rate
-//			if(Math.random() < this.mutationRate){
-//				// Get a second random position in the tour
-//				int tourPos2 = (int) (chromosome.getRouteSize() * Math.random());
-//
-//				// Get the cities at target position in tour
-//				TSPLocation city1 = chromosome.getLocationAtPosition(tourPos1);
-//				TSPLocation city2 = chromosome.getLocationAtPosition(tourPos2);
-//
-//				chromosome.setLocationAtPosition(tourPos2, city1);
-//				chromosome.setLocationAtPosition(tourPos1, city2);
-//				// Swap them around
-//
-//			}
-//		}
 
 	}
 
