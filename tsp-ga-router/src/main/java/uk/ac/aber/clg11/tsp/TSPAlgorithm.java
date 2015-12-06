@@ -86,32 +86,6 @@ public class TSPAlgorithm {
 			pointers[i] = pointer;
 			
 		}
-
-
-//		for (int i = 0; i < noOfIndividuals; i++) {
-//
-//			double pointer = (startLoc + i) * pointerDistance;
-//
-//			if (partialSum >= pointer) {
-//
-//				selectedRoutes.add(currentSelectedRoute);
-//
-//			} else {
-//
-//				for (++index; index < currentPopulation.getPopulationSize(); index++) {
-//
-//					currentSelectedRoute = currentPopulation.getRouteAtIndex(index);
-//					partialSum += currentSelectedRoute.getFitness();
-//
-//					if(partialSum >= pointer) {
-//
-//						selectedRoutes.add(currentSelectedRoute);
-//						break;
-//
-//					}
-//				}
-//			}
-//		}
 		
 		selectedRoutes = test1(currentPopulation, pointers);
 
@@ -137,13 +111,15 @@ public class TSPAlgorithm {
 		for (double p : points)
 		{
 
-			while (partialSum < p && (index < currentPopulation.getPopulationSize())) {
-				partialSum += currentPopulation.getRouteAtIndex(index).getFitness();
-				index++;
-			}
-
-			//This shouldn't be index-1??
-			keep.add(currentPopulation.getRouteAtIndex(index-1));
+//			while (partialSum < p && (index < currentPopulation.getPopulationSize())) {
+//				partialSum += currentPopulation.getRouteAtIndex(index).getFitness();
+//				index++;
+//			}
+//
+//			//This shouldn't be index-1??
+//			keep.add(currentPopulation.getRouteAtIndex(index-1));
+			
+			keep.add(RWS(currentPopulation, p));
 
 		}
 
@@ -168,6 +144,23 @@ public class TSPAlgorithm {
 		return (TSPRoute) tournamentSelectionPool.getFittestCandidate();
 
 	}
+	
+	public TSPRoute RWS(TSPPopulation currentPopulation, double randomPoint) {
+		
+		double partialSum = 0.0;
+
+		TSPRoute currentSelectedRoute = null;
+
+		for (int i = 0; (partialSum < randomPoint) && (i < currentPopulation.getPopulationSize()); i++) {
+
+			currentSelectedRoute = currentPopulation.getRouteAtIndex(i);
+			partialSum += currentSelectedRoute.getFitness();
+
+		}
+		
+		return currentSelectedRoute;
+		
+	}
 
 	public TSPRoute performRouletteWheelSelection(TSPPopulation currentPopulation) throws Exception {
 
@@ -177,22 +170,24 @@ public class TSPAlgorithm {
 
 		double randomPoint = ThreadLocalRandom.current().nextDouble(populationFitnessSum);
 
-		double partialSum = 0.0;
-
-		TSPRoute currentSelectedRoute = null;
-
-		for (int i = 0; (i < currentPopulation.getPopulationSize() && partialSum < randomPoint); i++) {
-
-			currentSelectedRoute = currentPopulation.getRouteAtIndex(i);
-			partialSum += currentSelectedRoute.getFitness();
-
-		}
-
-		if (currentSelectedRoute == null) {
-			throw new Exception("Something went very wrong here. - No route has been selected!");
-		}
-
-		return currentSelectedRoute;
+//		double partialSum = 0.0;
+//
+//		TSPRoute currentSelectedRoute = null;
+//
+//		for (int i = 0; (i < currentPopulation.getPopulationSize() && partialSum < randomPoint); i++) {
+//
+//			currentSelectedRoute = currentPopulation.getRouteAtIndex(i);
+//			partialSum += currentSelectedRoute.getFitness();
+//
+//		}
+//
+//		if (currentSelectedRoute == null) {
+//			throw new Exception("Something went very wrong here. - No route has been selected!");
+//		}
+//
+//		return currentSelectedRoute;
+		
+		return RWS(currentPopulation, randomPoint);
 
 	}
 
