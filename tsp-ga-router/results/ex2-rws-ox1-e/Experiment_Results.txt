@@ -1,8 +1,8 @@
 TSPExperiment
 
-experimentName=ex1-rws-e
+experimentName=ex2-rws-ox1-e
 
-date=06_12_2015_23_28_38_807
+date=06_12_2015_23_42_06_168
 
 experimentGenerations=500
 

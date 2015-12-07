@@ -1,8 +1,8 @@
 TSPExperiment
 
-experimentName=ex1-rws-e
+experimentName=ex2-sus-ox1-e
 
-date=06_12_2015_23_28_38_807
+date=06_12_2015_23_41_51_967
 
 experimentGenerations=500
 
@@ -12,6 +12,6 @@ mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.015 ]
 
 crossoverSettings=TSPCrossoverSettings [crossoverMethod=ordered, crossoverRate=0.75, returnSingleChild=false]
 
-selectionSettings=TSPSelectionSettings [selectionMethod=rws, tournamentSize=-1, useElitism=true, returnSingleChild=false]
+selectionSettings=TSPSelectionSettings [selectionMethod=sus, tournamentSize=-1, useElitism=true, returnSingleChild=false]
 
 populationSettings=TSPPopulationSettings [populationSize=100]

@@ -15,34 +15,29 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FilenameUtils;
 
+/**
+ * Generates a random collection of XY coordinate pairs that represent an individual Travelling Salesman Problem definition.
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ *
+ */
 public class TSPGenerator {
 
 	public static void main(String[] args) {
 
-		Options options = new Options();
-
-		options.addOption(Option.builder("f").longOpt("exportfile").hasArg().argName("fileName")
-				.desc("Filepath of target export file.").build());
-
-		options.addOption(Option.builder("p").longOpt("points").hasArg().argName("noOfPoints")
-				.desc("Number of TSP coordinates to be generated.").build());
-
-		options.addOption(Option.builder("g").longOpt("gridsize").hasArg().argName("gridSize")
-				.desc("Size of the TSP grid space.").build());
-
-		options.addOption(new Option("help", "Print this help message."));
-
 		CommandLineParser parser = new DefaultParser();
 
 		try {
-
-			// parse the command line arguments
-			CommandLine line = parser.parse(options, args);
+			
+			Options cliOptions = setupCLIParser();
+			
+			// Parse the CLI arguments.
+			CommandLine line = parser.parse(cliOptions, args);
 
 			if (line.hasOption("help") || !line.hasOption("points")) {
 
 				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("TSEGenerator", options);
+				formatter.printHelp("TSPGenerator", cliOptions);
 
 			} else {
 
@@ -88,20 +83,31 @@ public class TSPGenerator {
 
 	}
 	
-	public static String checkExportFileExtension(String filePath) {
+	public static Options setupCLIParser() {
 		
-		if (!FilenameUtils.getExtension(filePath).equals("csv")) {
-			
-			String newFilePath = FilenameUtils.removeExtension(filePath);
-			newFilePath = newFilePath.concat(".csv");
-			
-			return newFilePath;
-		}
+		Options options = new Options();
+
+		options.addOption(Option.builder("f").longOpt("exportfile").hasArg().argName("fileName")
+				.desc("Filepath of target export file.").build());
+
+		options.addOption(Option.builder("p").longOpt("points").hasArg().argName("noOfPoints")
+				.desc("Number of TSP coordinates to be generated.").build());
+
+		options.addOption(Option.builder("g").longOpt("gridsize").hasArg().argName("gridSize")
+				.desc("Size of the TSP grid space.").build());
+
+		options.addOption(new Option("help", "Print this help message."));
 		
-		return filePath;
+		return options;
 		
 	}
 
+	/**
+	 * Generates the random collection of XY coordinates that represent a TSP definition.
+	 * @param noOfPoints The number of TSP locations to generate.
+	 * @param gridSize The maximum size of the map grid (sets X and Y axis)
+	 * @return Array of randomly-generated 'TSPCoord' XY coordinates.
+	 */
 	public static TSPCoord[] generateTSPPoints(int noOfPoints, int gridSize) {
 
 		Random randGen = new Random();
@@ -117,6 +123,21 @@ public class TSPGenerator {
 
 		return points;
 
+	}
+
+	public static String checkExportFileExtension(String filePath) {
+		
+		// If the user has tried to specify an export file extension other than '.csv', override it.
+		if (!FilenameUtils.getExtension(filePath).equals("csv")) {
+			
+			String newFilePath = FilenameUtils.removeExtension(filePath);
+			newFilePath = newFilePath.concat(".csv");
+			
+			return newFilePath;
+		}
+		
+		return filePath;
+		
 	}
 
 	public static boolean writeCSVFile(String exportFilePath, TSPCoord[] tspCoordinates) {

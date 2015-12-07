@@ -1,8 +1,8 @@
 TSPExperiment
 
-experimentName=ex1-sus-e
+experimentName=ex2-sus-cycle-e
 
-date=06_12_2015_23_28_25_859
+date=06_12_2015_23_42_37_263
 
 experimentGenerations=500
 
@@ -10,7 +10,7 @@ noOfLocations=30
 
 mutationSettings=TSPMutationSettings [ mutationMethod=swap, mutationRate=0.015 ]
 
-crossoverSettings=TSPCrossoverSettings [crossoverMethod=ordered, crossoverRate=0.75, returnSingleChild=false]
+crossoverSettings=TSPCrossoverSettings [crossoverMethod=cycle, crossoverRate=0.75, returnSingleChild=false]
 
 selectionSettings=TSPSelectionSettings [selectionMethod=sus, tournamentSize=-1, useElitism=true, returnSingleChild=false]
 

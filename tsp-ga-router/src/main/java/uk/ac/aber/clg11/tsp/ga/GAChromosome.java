@@ -55,7 +55,7 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 		return genes.size();
 	}
 	
-	protected void resetFitness() {
+	public void resetFitness() {
 		this.currentFitness = 0;
 	}
 	
@@ -70,9 +70,5 @@ public abstract class GAChromosome<T extends Number, K extends GAGene> implement
 		
 	}
 	
-	/**
-	 * Calculates the combined sum of the fitnesses for all of the individuals represented by the chromosome.
-	 * @return The total fitness for the chromosome.
-	 */
 	public abstract T getFitness();
 }

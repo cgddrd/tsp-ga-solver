@@ -1,5 +1,10 @@
 package uk.ac.aber.clg11.tsp;
 
+/**
+ * Represents an individual pair of XY coordinates that depict the 2D position of an individual TSP location.
+ * 
+ * @author Connor Goddard (clg11@aber.ac.uk)
+ */
 public class TSPCoord {
 	
 	private int x;
