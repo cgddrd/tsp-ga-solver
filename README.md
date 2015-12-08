@@ -1,17 +1,15 @@
 # tsp-ga-solver [![Build Status](https://magnum.travis-ci.com/cgddrd/tsp-ga-solver.svg?token=tCLDqXmwoDrZUXhGxxFz&branch=master)](https://magnum.travis-ci.com/cgddrd/tsp-ga-solver)
 
-SEM/CSM6120 Assignment: Solving Travelling Salesman Problems with Genetic Algorithms
+#SEM/CSM6120 Assignment: Solving Travelling Salesman Problems with Genetic Algorithms
 
-Introduction
-------------
+##Introduction
 
 This project (TSP-GA-Solver) contains two command-line based Java applications as part of the SEM6120 assignment two submission:
 
 1) TSP-GA-Router - Provides the main GA implementation for solving TSP problems.
 2) TSP-Generator - Utility application for generating a CSV file containing a specified number of randomised XY coordinates for use as a data file within the 'TSP-GA-Router' application.
 
-Installation / Running Instructions
------------------------------------
+##Installation / Running Instructions
 
 With the aim of providing a simple and consistent way of running the Java applications across varying platforms, this project makes use of the Gradle build automation system. (See: http://gradle.org for further information on Gradle).
 
@@ -25,8 +23,7 @@ The top-level gradle project (TSP-GA-Solver) is split into two sub-projects, one
 ```
 
 
-Requirements
-============
+###Requirements
 
 Please be aware, this project requires the following dependencies be installed PRIOR to continuing with the instructions within this document:
 
@@ -34,8 +31,7 @@ Please be aware, this project requires the following dependencies be installed P
 2) Gradle - http://gradle.org/gradle-download/
 
 
-Building:
-=========
+###Building:
 
 To build both applications run the following commands:
 
@@ -45,10 +41,9 @@ To build both applications run the following commands:
 
 After each `assemble` command, Gradle should automatically clean and build the Java projects, making sure to AUTOMATICALLY download any dependency libraries.
 
-Running:
-========
+###Running:
 
-TSP-Generator:
+####TSP-Generator:
 
 Whilst an example TSP datafile is included inside this submission ('tspdata.csv'), should you wish to generate your own, run the following commands:
 
@@ -61,8 +56,7 @@ For an explanation of the available CLI arguments, please run:
 
 `gradle :tsp-generator:run -Ptspargs="['-help']"`
 
-
-TSP-GA-Router:
+####TSP-GA-Router:
 
 To run the TSP-GA-Router application, run the following commands:
 
