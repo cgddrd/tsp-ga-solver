@@ -1,11 +1,10 @@
-# tsp-ga-solver [![Build Status](https://magnum.travis-ci.com/cgddrd/tsp-ga-solver.svg?token=tCLDqXmwoDrZUXhGxxFz&branch=master)](https://magnum.travis-ci.com/cgddrd/tsp-ga-solver)
-
-SEM/CSM6120 Assignment: Solving Travelling Salesman Problems with Genetic Algorithms
+TSP-GA-Solver (SEM6120 Assignment 2 - December 2015)
+Connor Goddard (clg11@aber.ac.uk)
 
 Introduction
 ------------
 
-This project (TSP-GA-Solver) contains two command-line based Java applications as part of the SEM6120 assignment two submission:
+This folder (TSP-GA-Solver) contains two command-line based Java applications as part of the SEM6120 assignment two submission:
 
 1) TSP-GA-Router - Provides the main GA implementation for solving TSP problems.
 2) TSP-Generator - Utility application for generating a CSV file containing a specified number of randomised XY coordinates for use as a data file within the 'TSP-GA-Router' application.

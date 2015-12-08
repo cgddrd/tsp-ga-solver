@@ -16,4 +16,4 @@ run {
 
 }
 
-mainClassName = 'uk.ac.aber.clg11.tsp.TSPSolver'
+mainClassName = 'uk.ac.aber.clg11.tsp.TSPGARouter'

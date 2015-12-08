@@ -32,15 +32,15 @@ public class TSPExperiment {
 	private TSPSelectionSettings selectionSettings = new TSPSelectionSettings();
 	private TSPPopulationSettings populationSettings = new TSPPopulationSettings();
 	
-	private ArrayList<TSPExperimentResult> experimentResultsCollection = new ArrayList<>();
+	private ArrayList<TSPExperimentResult> experimentResults = new ArrayList<>();
 
 	public TSPExperiment() {
 
 	}
 
-	public TSPExperiment(String experimentName, int generationNumber) {
+	public TSPExperiment(String experimentName, int noOfGens) {
 		setExperimentName(experimentName);
-		setExperimentGenerations(generationNumber);
+		setExperimentGenerations(noOfGens);
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public class TSPExperiment {
 		
 		if (this.overallFittestRoute == null) {
 			
-			for (TSPExperimentResult currentResult : this.experimentResultsCollection) {
+			for (TSPExperimentResult currentResult : this.experimentResults) {
 				
 				if (currentResult.getCurrentFittestCandidate().getRouteDistance() <= overallBestDistance) {
 					
@@ -76,7 +76,7 @@ public class TSPExperiment {
 		
 		if (this.overallBestDistance == Integer.MAX_VALUE) {
 			
-			for (TSPExperimentResult currentResult : this.experimentResultsCollection) {
+			for (TSPExperimentResult currentResult : this.experimentResults) {
 				
 				if (currentResult.getBestDistance() <= this.overallBestDistance) {
 					
@@ -182,7 +182,7 @@ public class TSPExperiment {
 	 * Represents the average duration for the GA to complete across all experiment runs as a timestamp.
 	 * @return Timestamp representing the average duration for the GA to complete across all experiment runs.
 	 */
-	public String getAverageDurationToString() {
+	public String getAverageDurationAllRunsToString() {
 		
 		return DurationFormatUtils.formatDuration(TimeUnit.NANOSECONDS.toMillis(getAverageDurationAllRuns()), "HH:mm:ss.SSS");
 		
@@ -277,11 +277,11 @@ public class TSPExperiment {
 	}
 	
 	public ArrayList<TSPExperimentResult> getExperimentResultsCollection() {
-		return experimentResultsCollection;
+		return experimentResults;
 	}
 	
 	public void addExperimentResult(TSPExperimentResult newResult) {
-		this.experimentResultsCollection.add(newResult);
+		this.experimentResults.add(newResult);
 	}
 	
 	public ArrayList<Integer> getGenerationsRangeCollection() {

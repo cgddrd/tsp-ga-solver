@@ -23,7 +23,7 @@ import uk.ac.aber.clg11.tsp.utils.IOUtils;
  * @author Connor Goddard (clg11@aber.ac.uk)
  *
  */
-public class TSPSolver {
+public class TSPGARouter {
 
 	private Options options = new Options();
 	private CommandLineParser parser = new DefaultParser();
@@ -32,7 +32,7 @@ public class TSPSolver {
 	public static void main(String[] args) throws Exception {
 		
 		// Initiate the running of TSP-GA experiments.
-		TSPSolver tsp = new TSPSolver();
+		TSPGARouter tsp = new TSPGARouter();
 		tsp.runTSPGASolver(args);
 		
 	}
@@ -180,7 +180,7 @@ public class TSPSolver {
 		System.out.println("Average Best Distance: " + currentExperiment.getAverageBestDistanceAllRuns());
 		System.out.println("Overall Best Distance: " + currentExperiment.getBestDistanceAllRuns());
 		System.out.println("Overall Best Route: " + currentExperiment.getFittestRouteAllRuns().toString());
-		System.out.println("Average Duration: " + currentExperiment.getAverageDurationToString());
+		System.out.println("Average Duration: " + currentExperiment.getAverageDurationAllRunsToString());
 		System.out.println("------------------------------------------------------------------------");
 		
 	}
@@ -198,7 +198,7 @@ public class TSPSolver {
 	 * @return Updated collection of experiment results (now including timing data for the GA).
 	 * @throws Exception
 	 */
-	public TSPExperimentResult conductTimedGARun(TSPExperiment currentExperiment, TSPExperimentResult currentExperimentResult, TSPAlgorithm ga, ArrayList<TSPLocation> locations) throws Exception {
+	private TSPExperimentResult conductTimedGARun(TSPExperiment currentExperiment, TSPExperimentResult currentExperimentResult, TSPAlgorithm ga, ArrayList<TSPLocation> locations) throws Exception {
 		
 		// Begin timing of the test run.
 		StopWatch stopWatch = new StopWatch();
@@ -246,7 +246,7 @@ public class TSPSolver {
 	 * @param exportFileLocation The file path specifying the location to save exported results to.
 	 * @throws TSPPlotterException
 	 */
-	public void exportExperimentResultAverages(TSPExperiment currentExperiment, String exportFileLocation) throws TSPPlotterException {
+	private void exportExperimentResultAverages(TSPExperiment currentExperiment, String exportFileLocation) throws TSPPlotterException {
 		
 		TSPPlotter exportPlotter = new TSPPlotter.TSPPlotterBuilder()
 				  .setShowLegend(true)

@@ -1,1 +1,9 @@
 mainClassName = 'uk.ac.aber.clg11.tsp.TSPGenerator'
+
+run {
+	
+	if (project.hasProperty("tspargs")) {
+		args Eval.me(tspargs)
+	}
+
+}
