@@ -17,10 +17,12 @@ With the aim of providing a simple and consistent way of running the Java applic
 
 The top-level gradle project (TSP-GA-Solver) is split into two sub-projects, one for each application listed above e.g.:
 
+```
 - tsp-ga-solver
               |
               | - tsp-ga-router
               | - tsp-generator
+```
 
 
 Requirements
@@ -37,11 +39,11 @@ Building:
 
 To build both applications run the following commands:
 
-1) cd tsp-ga-solver
-2) gradle :tsp-ga-router:assemble
-3) gradle :tsp-generator:assemble
+1) `cd tsp-ga-solver`
+2) `gradle :tsp-ga-router:assemble`
+3) `gradle :tsp-generator:assemble`
 
-After each 'assemble' command, Gradle should automatically clean and build the Java projects, making sure to AUTOMATICALLY download any dependency libraries.
+After each `assemble` command, Gradle should automatically clean and build the Java projects, making sure to AUTOMATICALLY download any dependency libraries.
 
 Running:
 ========
@@ -50,32 +52,32 @@ TSP-Generator:
 
 Whilst an example TSP datafile is included inside this submission ('tspdata.csv'), should you wish to generate your own, run the following commands:
 
-1) cd tsp-ga-solver
-2) gradle :tsp-generator:run -Ptspargs="['-p', '<NO_OF_POINTS>', '-f', '<CSV_FILE_NAME>', '-g', '<MAX_GRID_SIZE>']"
+1) `cd tsp-ga-solver`
+2) `gradle :tsp-generator:run -Ptspargs="['-p', '<NO_OF_POINTS>', '-f', '<CSV_FILE_NAME>', '-g', '<MAX_GRID_SIZE>']"`
 
-e.g. " gradle :tsp-generator:run -Ptspargs="['-p', '30', '-f', 'points.csv', '-g', '200']" "
+e.g. `gradle :tsp-generator:run -Ptspargs="['-p', '30', '-f', 'points.csv', '-g', '200']"`
 
 For an explanation of the available CLI arguments, please run:
 
-gradle :tsp-generator:run -Ptspargs="['-help']"
+`gradle :tsp-generator:run -Ptspargs="['-help']"`
 
 
 TSP-GA-Router:
 
 To run the TSP-GA-Router application, run the following commands:
 
-1) cd tsp-ga-solver
-2) gradle :tsp-ga-router:run -Ptspargs="['-cf', '<PATH_TO_XML_CONFIGURATION_FILE>, '-df', '<PATH_TO_CSV_DATA_FILE>, '-e', '<PATH_TO_RESULTS_EXPORT_DIRECTORY>']"
+1) `cd tsp-ga-solver`
+2) `gradle :tsp-ga-router:run -Ptspargs="['-cf', '<PATH_TO_XML_CONFIGURATION_FILE>, '-df', '<PATH_TO_CSV_DATA_FILE>, '-e', '<PATH_TO_RESULTS_EXPORT_DIRECTORY>']"`
 
-e.g. " gradle :tsp-ga-router:run -Ptspargs="['-cf', 'experiment-configs/tsp-ex2-config.xml', '-df', 'tsp-data/tspdata.csv', '-e', 'results']" "
+e.g. `gradle :tsp-ga-router:run -Ptspargs="['-cf', 'experiment-configs/tsp-ex2-config.xml', '-df', 'tsp-data/tspdata.csv', '-e', 'results']"`
 
 PLEASE NOTE:
 
  - Example XML configuration files (used to run the documented experiments) are available in 'tsp-ga-solver/experiment-configs/'
  - Example TSP data files (used to run the documented experiments) are available in 'tsp-ga-solver/tsp-data/'
  - Example results output (those to run the documented experiments) is available in 'tsp-ga-solver/experiment-results/'
- - 'PATH_TO_RESULTS_EXPORT_DIRECTORY' can contain folder paths that are not yet created. These will be created automatically upon exporting of result data.
+ - `PATH_TO_RESULTS_EXPORT_DIRECTORY` can contain folder paths that are not yet created. These will be created automatically upon exporting of result data.
 
 For an explanation of the available CLI arguments, please run:
 
-gradle :tsp-ga-router:run -Ptspargs="['-help']"
+`gradle :tsp-ga-router:run -Ptspargs="['-help']"`
